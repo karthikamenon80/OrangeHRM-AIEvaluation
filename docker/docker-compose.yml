@@ -1,0 +1,36 @@
+version: '3.8'
+
+# Official OrangeHRM application image + MariaDB, per OrangeHRM's own Docker
+# install guide (github.com/orangehrm/orangehrm/wiki/How-to-Install-via-Docker-image).
+# The orangehrm/orangehrm image does not support headless env-var DB config —
+# first boot requires completing OrangeHRM's web installer (see README below).
+
+services:
+  db:
+    image: mariadb:10.4
+    container_name: ohrm-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-orangehrm_root_pw}
+    volumes:
+      - ohrm_db_data:/var/lib/mysql
+    networks:
+      - ohrm-net
+
+  web:
+    image: orangehrm/orangehrm:latest
+    container_name: ohrm-web
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8080:80"
+    networks:
+      - ohrm-net
+
+networks:
+  ohrm-net:
+    driver: bridge
+
+volumes:
+  ohrm_db_data:
