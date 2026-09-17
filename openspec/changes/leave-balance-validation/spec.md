@@ -16,11 +16,21 @@ Leave Type dropdown to even attempt a submission.
 
 ### Zero balance — an explicit 0.00 entitlement
 Adding a leave entitlement with **Entitlement = 0** was **accepted** (no
-inline error) and created a real entitlement record. Once that record
-existed, the leave type **did** appear in the employee's Apply Leave dropdown
-(behavior differs from "no record at all", above), with **Leave Balance:
-0.00 Day(s)** displayed. This is a distinct, narrower zero-balance state from
-having no entitlement record at all.
+inline error) and created a real entitlement record — confirmed visible on
+the admin's **Leave → Entitlements** list (`CAN - Vacation | Added |
+2026-01-01 | 2026-31-12 | 0`, "Total 0.00 Day(s)").
+
+**Correction (re-verified while writing Playwright tests against this spec,
+Day 2):** the initial Day 1 write-up of this section was wrong. A 0.00
+entitlement does **not** make the leave type selectable on the employee's
+Apply Leave screen — that screen still shows **"No Leave Types with Leave
+Balance"**, identically to having no entitlement record at all (see above).
+The "record exists but is 0" vs. "no record at all" distinction is real and
+verifiable, but only from the **admin's Entitlements list**, not from the
+employee-facing Apply Leave screen. Re-verified directly: granting a fresh
+0.00 entitlement to a brand-new employee and immediately checking their
+Apply Leave screen shows "No Leave Types with Leave Balance", not a
+selectable "CAN - Vacation" with "0.00 Day(s)".
 
 ### Negative entitlement (admin-side allocation)
 On Add Leave Entitlement, entering **Entitlement = -5** was rejected with:
@@ -71,8 +81,10 @@ To.
    Types with Leave Balance" and offers no leave type to select.
 2. **AC-2**: Given an employee with an explicit 0.00-day entitlement record
    for a leave type, when they open Apply Leave, then that leave type is
-   selectable and its Leave Balance displays as "0.00 Day(s)" (distinct from
-   AC-1's no-record state).
+   still **not** selectable — the screen shows "No Leave Types with Leave
+   Balance", the same as AC-1's no-record state. The 0.00 record is real and
+   is visible on the admin's Entitlements list, but Apply Leave treats "an
+   entitlement of zero" and "no entitlement at all" identically.
 3. **AC-3**: Given the Add Leave Entitlement form, when a negative number is
    entered for Entitlement, then the save is blocked with a
    number-format error and no entitlement is created or updated.
@@ -101,10 +113,13 @@ To.
 
 ## Edge cases
 
-- **"No entitlement record" vs. "0.00 entitlement" are different states**
-  with different UI (AC-1 vs. AC-2) — a test suite that only checks "balance
-  is zero" will miss this distinction; they must be tested as two separate
-  scenarios.
+- **"No entitlement record" vs. "0.00 entitlement" are different states in
+  the data, but identical from the employee's Apply Leave screen** (AC-1 vs.
+  AC-2) — both show "No Leave Types with Leave Balance". The distinction only
+  surfaces on the admin's Entitlements list. A test (or a person) checking
+  only Apply Leave will conclude, incorrectly, that no entitlement was ever
+  created — this spec's own first draft made exactly that mistake before
+  being re-verified.
 - **Negative-number rejection message is generic**, not balance-specific
   ("Should be a number with upto 2 decimal places") — it reads the same as a
   malformed-decimal error, so this UI does not clearly communicate *why* a
