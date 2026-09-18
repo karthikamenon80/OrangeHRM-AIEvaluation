@@ -1,0 +1,66 @@
+{
+  "gaps": [
+    {
+      "category": "missing_acceptance_criterion",
+      "reference": "AC-2",
+      "description": "No test checks the Dashboard 'My Actions' widget showing '(1) Leave Request to Approve' after a submission. This is entirely untested — no test logs into Admin's dashboard to verify the pending count before acting on the request.",
+      "severity": "high"
+    },
+    {
+      "category": "missing_acceptance_criterion",
+      "reference": "AC-5",
+      "description": "No test verifies that the approved ('Scheduled') row retains a Cancel action for the employee. The test only checks the status text 'Scheduled (2.00)' and balance, not the presence of the Cancel button.",
+      "severity": "medium"
+    },
+    {
+      "category": "missing_acceptance_criterion",
+      "reference": "AC-6",
+      "description": "No test verifies that the rejected row has no further employee action (no Cancel button). Only the status text and balance are checked.",
+      "severity": "medium"
+    },
+    {
+      "category": "missing_acceptance_criterion",
+      "reference": "AC-7",
+      "description": "No test explicitly verifies that Approve/Reject actions are available inline in the Leave List row without navigating to a detail page — the tests call leaveList.approve()/reject() helper methods but don't assert inline-availability or absence of navigation to a detail view.",
+      "severity": "low"
+    },
+    {
+      "category": "weak_assertion",
+      "reference": "AC-3",
+      "description": "The test does not assert the absence of a confirmation dialog when clicking Reject, which is an explicit part of AC-3 ('applies immediately without a confirmation prompt'). It only checks the resulting toast and balance restoration.",
+      "severity": "medium"
+    },
+    {
+      "category": "weak_assertion",
+      "reference": "AC-4",
+      "description": "Similarly, AC-4 requires confirming no confirmation prompt appears on Approve; the test does not assert this explicitly.",
+      "severity": "medium"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "No confirmation dialog on Approve/Reject",
+      "description": "The edge case explicitly flags the lack of a confirmation dialog as a UX risk worth asserting on, but no test verifies the absence of any dialog/prompt when clicking Approve or Reject.",
+      "severity": "medium"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "Notification is in-app only (observed)",
+      "description": "Not tested at all — no test verifies that no toast/email is generated for the approver at submission time, nor that the Dashboard widget is the only notification surface.",
+      "severity": "medium"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "Leave Type dropdown scoping",
+      "description": "Not exercised in this test file, but this is explicitly disclosed as covered by a separate spec (leave-balance-validation), so it is a low-severity, disclosed gap here.",
+      "severity": "low"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "Cross-role dependency not fully isolated",
+      "description": "Explicitly disclosed in the spec as a known follow-up (manager-scoped approval not verified). Correctly a disclosed, low-severity gap not covered by these tests.",
+      "severity": "low"
+    }
+  ],
+  "score": 6,
+  "summary": "The two tests solidly cover the core balance-accounting round trips for AC-1, AC-3, and AC-4 with correct numeric assertions matching observed behavior. However, AC-2 (dashboard notification widget) is completely untested, AC-5/AC-6 (post-action row action availability) and AC-7 (inline action availability) are not explicitly verified, and the explicitly-called-out edge case of 'no confirmation dialog' is never asserted despite being flagged as a genuine risk in the spec."
+}

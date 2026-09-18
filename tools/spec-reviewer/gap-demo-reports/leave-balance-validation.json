@@ -1,0 +1,66 @@
+{
+  "gaps": [
+    {
+      "category": "missing_acceptance_criterion",
+      "reference": "AC-2",
+      "description": "AC-2 is functionally exercised inside the AC-3/AC-4 test (checking that a 0.00 entitlement still shows 'No Leave Types with Leave Balance'), but the test comment cites it only informally in prose, not as a discrete 'AC-2' tag on that specific assertion block. This is a minor traceability nit rather than a real coverage gap since the assertion is present and correct.",
+      "severity": "low"
+    },
+    {
+      "category": "missing_acceptance_criterion",
+      "reference": "AC-5",
+      "description": "AC-5 requires verifying that a confirmation dialog appears naming the existing and new entitlement values (e.g. 'Existing Entitlement value X.00 will be updated to Y.00') before replacement, and that the replace (not additive) semantics hold. The test only calls entitlement.grant() in a comment claiming 'a confirm dialog is handled inside LeaveEntitlementPage.save()' but never asserts the dialog text or the specific replaced value (e.g. verifying the entitlement went from 0.00 to 5.00, not 5.00 additive on top of 0). No test comment cites AC-5 at all, and no assertion checks the dialog content or the resulting exact balance is a genuine replace vs. add.",
+      "severity": "high"
+    },
+    {
+      "category": "missing_acceptance_criterion",
+      "reference": "AC-9",
+      "description": "AC-9 (malformed/unparseable date text produces inline 'Should be a valid date in yyyy-dd-mm format' error, independently for From and To) has no corresponding test at all. No test enters free-text/malformed date input into either date field.",
+      "severity": "high"
+    },
+    {
+      "category": "weak_assertion",
+      "reference": "AC-8",
+      "description": "AC-8 requires checking that (a) an inline 'To date should be after from date' error appears, (b) the Leave Balance panel resets to 0.00, and (c) no server round trip occurs. The test file as written does not include any explicit scenario setting To Date before From Date at all — the comment block claims AC-8 is covered ('over-allocation blocked, invalid range blocked...') but no code in the test body sets an invalid date range, checks the inline error text, or checks the balance panel resets to 0.00. This looks like an AC cited in the comment but never actually exercised.",
+      "severity": "high"
+    },
+    {
+      "category": "weak_assertion",
+      "reference": "AC-6",
+      "description": "The observed behavior specifies the exact error toast text 'Leave Balance Exceeded' and that the form is reset with no partial/capped request created. The test only asserts `errorToast` is visible, without checking the toast text matches 'Leave Balance Exceeded' specifically, and without verifying the form was reset or that no leave request record was created. This is a shallow assertion for what the AC actually claims.",
+      "severity": "medium"
+    },
+    {
+      "category": "weak_assertion",
+      "reference": "AC-7",
+      "description": "The test checks `successToast` is visible but does not assert the specific 'Successfully Saved' text mentioned in Observed Behavior, leaving room for the assertion to pass on an unrelated generic success toast.",
+      "severity": "low"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "Re-allocation is a destructive replace, not additive",
+      "description": "This edge case overlaps with AC-5 and is not verified — the test doesn't confirm the entitlement becomes exactly 5.00 (replace) rather than 5.00 additive to the prior 0.00 (which would also yield 5.00, making this specific overlap hard to detect without checking dialog values). No assertion distinguishes replace vs additive semantics.",
+      "severity": "medium"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "Fractional/decimal entitlements",
+      "description": "Explicitly disclosed in the spec as 'not independently re-verified... flagged as a follow-up' — correctly a known, disclosed gap, not exercised by any test.",
+      "severity": "low"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "Invalid date range resets balance context",
+      "description": "Disclosed in the spec as 'flagged as a follow-up' (whether balance re-displays automatically on correction). Not tested, but appropriately low severity since it's disclosed and also AC-8's core behavior isn't tested either.",
+      "severity": "low"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "Client-side 'Balance not sufficient' is advisory, not enforcing",
+      "description": "This is well covered by the AC-6 test (checks balance text, then still attempts apply and checks server-side toast) — noting as satisfied, not a gap. No action needed.",
+      "severity": "low"
+    }
+  ],
+  "score": 4,
+  "summary": "Coverage of AC-1, AC-3, AC-4, AC-6, and AC-7 is present and reasonably faithful to observed behavior, but AC-9 (malformed date) has no test at all, AC-8 (invalid date range) is claimed in a comment but never actually exercised in the test body, and AC-5 (confirmation dialog naming old/new values, replace semantics) is not asserted beyond a black-box helper call with no dialog-content or resulting-value check. Several assertions (toast text, form reset, no-request-created) are shallower than what the spec's Observed Behavior actually pins down, so multiple ACs are effectively unproven despite being nominally \"covered.\""
+}
