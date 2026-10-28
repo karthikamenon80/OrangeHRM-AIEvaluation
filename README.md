@@ -17,6 +17,12 @@ FAIL with a dashboard that traces every requirement to its evidence.
 
 **Stack:** TypeScript · Playwright · Claude API (Sonnet as reviewer, Opus as judge) · GitHub Actions · OpenSpec · Docker
 
+**Skills demonstrated:** LLM evaluation · hallucination detection ·
+groundedness checks · prompt-injection and social-engineering testing ·
+LLM-as-a-judge · AI-assisted test automation · spec-driven testing and
+requirement traceability · CI/CD quality gates · root-cause analysis of
+flaky tests · AI cost control
+
 ## Results
 
 The gate's first run **failed**, which is what a gate is for. Closing the gaps
@@ -78,8 +84,9 @@ real suite it found that 4 of 7 Leave Approval criteria had no test at all.
 → [`tools/spec-reviewer/DEMO.md`](tools/spec-reviewer/DEMO.md)
 
 **5 · Evaluation.** For the AI side of an HR product, a platform scores
-an HR assistant's answers on accuracy, completeness, relevance, groundedness,
-safety and consistency. Rules alone catch 18 of 21 planted flaws. A Claude
+an HR assistant's answers on accuracy, completeness, relevance, groundedness
+(hallucination detection), safety (prompt injection, data leaks) and
+consistency. Rules alone catch 18 of 21 planted flaws. A Claude
 judge catches the 3 that rules can't see: a flipped yes/no, an invented
 approval step, and a polite social-engineering request. Together: 21/21.
 → [`eval-platform/DEMO.md`](eval-platform/DEMO.md)
@@ -264,7 +271,8 @@ trigger nothing, so they spend no API credits. Secrets: `ANTHROPIC_API_KEY`
 
 **Next phase**
 - [ ] **RAG HR assistant.** Build the assistant over the policy handbook and
-  evaluate its live answers, gating on its own safety and accuracy.
+  evaluate its live answers, gating on its own safety and accuracy, and on
+  response latency and cost per answer.
 - [ ] **MCP / tool calling.** Expose OrangeHRM actions as MCP tools for the
   assistant, and add tool-use correctness to the evaluation.
 - [ ] **Mobile testing with Maestro.** Cover the same acceptance criteria on
