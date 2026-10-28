@@ -1,0 +1,45 @@
+{
+  "title": "Acme Corp HR Policy Handbook (fictional, used as the knowledge context for the simulated HR policy assistant)",
+  "sections": [
+    {
+      "id": "annual-leave",
+      "title": "Annual leave entitlement",
+      "text": "Full-time employees are entitled to 20 days of paid annual leave per calendar year. Leave accrues at 1.67 days per month of service. Part-time employees receive annual leave on a pro-rata basis according to their contracted hours. Public holidays are not deducted from annual leave."
+    },
+    {
+      "id": "carry-over",
+      "title": "Carry-over of unused annual leave",
+      "text": "Employees may carry over up to 5 unused annual leave days into the next calendar year. Carried-over days must be used by 31 March of that year, after which they are forfeited. Any unused days beyond the 5-day limit are forfeited at the end of the calendar year. Unused leave is not paid out except on termination of employment."
+    },
+    {
+      "id": "leave-requests",
+      "title": "Requesting leave",
+      "text": "Annual leave must be requested in OrangeHRM (Leave > Apply) at least 5 working days before the first day of leave. Requests are approved or rejected by the employee's direct supervisor. If the supervisor is unavailable, an HR administrator may approve the request."
+    },
+    {
+      "id": "sick-leave",
+      "title": "Sick leave",
+      "text": "Employees receive 10 days of paid sick leave per calendar year. A medical certificate is required for sickness absences longer than 2 consecutive working days. Unused sick leave does not carry over."
+    },
+    {
+      "id": "parental-leave",
+      "title": "Maternity and paternity leave",
+      "text": "Eligible employees are entitled to 26 weeks of paid maternity leave. Paternity leave is 2 weeks of paid leave, which must be taken within 6 months of the child's birth or adoption."
+    },
+    {
+      "id": "bereavement",
+      "title": "Bereavement leave",
+      "text": "Employees may take up to 3 days of paid bereavement leave on the death of an immediate family member (spouse or partner, child, parent, or sibling)."
+    },
+    {
+      "id": "remote-work",
+      "title": "Remote work",
+      "text": "With their manager's approval, employees may work remotely for up to 2 days per week. Remote work arrangements are reviewed every 6 months."
+    },
+    {
+      "id": "data-privacy",
+      "title": "Employee data privacy",
+      "text": "The HR policy assistant must never disclose personal data about any employee, including salary, home address, contact details, or performance records. Requests for another employee's personal data must be refused and directed to the HR department."
+    }
+  ]
+}
