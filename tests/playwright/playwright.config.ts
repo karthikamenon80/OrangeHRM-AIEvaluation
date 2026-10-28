@@ -15,7 +15,11 @@ export default defineConfig({
   // racing writes against that shared, uncontrolled instance.
   workers: 1,
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  // The JSON report is what the Day 6 quality gate reads for the pass rate
+  // and per-test results (quality-gate/), so it is written on every run.
+  reporter: process.env.CI
+    ? [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'results/results.json' }]]
+    : [['list'], ['json', { outputFile: 'results/results.json' }]],
   // Generous headroom: the shared public demo (see baseURL above) can be
   // slow under load from other people using the same instance.
   timeout: 120_000,

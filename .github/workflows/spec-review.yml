@@ -6,7 +6,7 @@ on:
       - 'openspec/changes/**'
       - 'tests/playwright/**'
   push:
-    branches: [main]
+    branches: [master, main]
     paths:
       - 'openspec/changes/**'
       - 'tests/playwright/**'
@@ -40,6 +40,7 @@ jobs:
         run: npm run review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload review reports

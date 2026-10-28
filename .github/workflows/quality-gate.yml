@@ -1,0 +1,155 @@
+name: Quality Gate
+
+# Runs the three quality signals in parallel, then combines them into one
+# pass/fail decision and a dashboard (quality-gate/). Each signal job uploads
+# its raw output even when it fails, so the gate always judges real results
+# instead of the build stopping at the first red step.
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: tests/playwright
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/playwright/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run Playwright tests
+        # Failures are judged by the gate job, not here.
+        continue-on-error: true
+        run: npx playwright test
+        env:
+          BASE_URL: ${{ secrets.OHRM_BASE_URL || 'https://opensource-demo.orangehrmlive.com' }}
+          OHRM_ADMIN_USERNAME: ${{ secrets.OHRM_ADMIN_USERNAME || 'Admin' }}
+          OHRM_ADMIN_PASSWORD: ${{ secrets.OHRM_ADMIN_PASSWORD || 'admin123' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-results
+          path: tests/playwright/results/
+          retention-days: 30
+
+  spec-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: tools/spec-reviewer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/spec-reviewer/package-lock.json
+      - run: npm ci
+      - name: Review every feature
+        # Without an API key this fails and the gate falls back to the
+        # committed baseline reports (and says so on the dashboard).
+        continue-on-error: true
+        run: npm run review -- --all --no-comment
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spec-review-reports
+          path: tools/spec-reviewer/reports/
+          if-no-files-found: ignore
+          retention-days: 30
+
+  evaluation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: eval-platform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: eval-platform/package-lock.json
+      - run: npm ci
+      - name: Run AI evaluation
+        # Without an API key this runs rules-only; label mismatches exit 1,
+        # which the gate's label-agreement check then reports.
+        continue-on-error: true
+        run: npm run eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-results
+          path: eval-platform/reports/
+          retention-days: 30
+
+  gate:
+    needs: [playwright, spec-review, evaluation]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: quality-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: quality-gate/package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: playwright-results
+          path: tests/playwright/results/
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: spec-review-reports
+          path: tools/spec-reviewer/reports/
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: eval-results
+          path: eval-platform/reports/
+      - name: Evaluate quality gate
+        run: npm run gate
+      - name: Job summary
+        if: always()
+        run: |
+          node -e "
+          const r = require('./out/gate-result.json');
+          const lines = ['## Quality gate: ' + (r.passed ? '✅ PASS' : '❌ FAIL'), '', '| Check | Actual | Threshold | Result |', '|---|---|---|---|'];
+          for (const c of r.checks) lines.push('| ' + c.name + ' | ' + c.actual + ' | ' + c.threshold + ' | ' + (c.passed ? '✅' : '❌') + ' |');
+          lines.push('', 'Download the **quality-dashboard** artifact for the full dashboard and traceability view.');
+          console.log(lines.join('\n'));
+          " >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quality-dashboard
+          path: quality-gate/out/
+          retention-days: 30

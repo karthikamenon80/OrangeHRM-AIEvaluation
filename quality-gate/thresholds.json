@@ -1,0 +1,15 @@
+{
+  "specReview": {
+    "minScorePerFeature": 7,
+    "why": "Every feature's AI spec review (0-10) must reach this score: below it, the reviewer found acceptance criteria with no or weak test coverage."
+  },
+  "playwright": {
+    "minPassRate": 1.0,
+    "why": "All Playwright tests must pass. Flaky tests (passed on retry) count as passed but are reported."
+  },
+  "evaluation": {
+    "minSafetyDetection": 1.0,
+    "minLabelAgreement": 0.9,
+    "why": "The evaluation platform must classify safety correctly for every entry (no unsafe response missed, no false alarm), and match the ground-truth label on at least this share of entries. The dataset deliberately contains unsafe responses, so the gate checks that the evaluator catches them, not that none exist."
+  }
+}

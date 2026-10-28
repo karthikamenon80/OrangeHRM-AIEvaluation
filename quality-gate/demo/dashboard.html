@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quality Gate Dashboard</title>
+<style>
+:root{--bg:#f4f4f2;--surface:#fcfcfb;--text:#0b0b0b;--text-2:#52514e;--muted:#6f6e69;--border:#e2e1dc;--track:#dbe8f8;--series:#2a78d6;--good:#0ca30c;--warning:#fab219;--serious:#ec835a;--critical:#d03b3b;--good-ink:#006300;--critical-ink:#a32020;--serious-ink:#9a4a20;--warning-ink:#7a5200;--tick:#0b0b0b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121211;--surface:#1a1a19;--text:#f0efec;--text-2:#c3c2b7;--muted:#9c9b94;--border:#34332f;--track:#1f3550;--series:#3987e5;--good-ink:#5fd35f;--critical-ink:#ff8a80;--serious-ink:#f3a07c;--warning-ink:#fcc94d;--tick:#f0efec}}
+:root[data-theme="dark"]{--bg:#121211;--surface:#1a1a19;--text:#f0efec;--text-2:#c3c2b7;--muted:#9c9b94;--border:#34332f;--track:#1f3550;--series:#3987e5;--good-ink:#5fd35f;--critical-ink:#ff8a80;--serious-ink:#f3a07c;--warning-ink:#fcc94d;--tick:#f0efec}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1240px;margin:0 auto;padding:24px 16px 56px}h1{font-size:20px;margin:0}h2{font-size:17px;margin:40px 0 6px}h3{font-size:14px;margin:22px 0 8px;color:var(--text-2)}
+.muted{color:var(--muted)}code{font:12px ui-monospace,Consolas,monospace}small{display:block;font-size:11px}.err{color:var(--critical-ink)}
+.hero{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin-top:14px}
+.verdict{display:flex;align-items:center;gap:14px}.verdict-icon{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:28px;font-weight:700;color:#fff}
+.verdict.pass .verdict-icon{background:var(--good)}.verdict.fail .verdict-icon{background:var(--critical)}
+.verdict b{font-size:48px;line-height:1;letter-spacing:-.01em}.verdict.pass b{color:var(--good-ink)}.verdict.fail b{color:var(--critical-ink)}
+.hero ul{margin:0;padding-left:18px;max-width:640px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:12px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.tile-label{font-size:12px;color:var(--text-2)}.tile-value{font-size:28px;line-height:1.2}.tile-sub{font-size:12px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap;border:1px solid currentColor}
+.chip.good{color:var(--good-ink)}.chip.critical{color:var(--critical-ink)}.chip.serious{color:var(--serious-ink)}.chip.warning{color:var(--warning-ink)}.chip.neutral{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media (max-width:820px){.grid2{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.panel h3{margin-top:0}
+.hbar{display:grid;grid-template-columns:minmax(110px,190px) 1fr 52px;align-items:center;gap:10px;padding:6px 0;outline:none}
+.hbar:focus-visible{box-shadow:0 0 0 2px var(--series);border-radius:4px}
+.hbar-label{font-size:13px;overflow-wrap:anywhere}.hbar-value{font-size:13px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.hbar-track{position:relative;height:14px;background:var(--track);border-radius:0 4px 4px 0}
+.hbar-fill{position:absolute;inset:0 auto 0 0;background:var(--series);border-radius:0 4px 4px 0}
+.tick{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--tick)}
+.legend{font-size:12px;color:var(--muted);margin-top:6px}.legend i{display:inline-block;width:2px;height:12px;background:var(--tick);vertical-align:middle;margin:0 4px}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:12px;color:var(--text-2);font-weight:600;white-space:nowrap}tbody tr:last-child td{border-bottom:none}td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ac-text{min-width:240px;max-width:360px;color:var(--text-2)}.resp{max-width:280px;color:var(--text-2)}
+.trace-test,.gap{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;margin:2px 0}.gap span:last-child{flex:1 1 220px;font-size:12px;color:var(--text-2)}
+.pipeline{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:12px 0}
+.stage{flex:1 1 150px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.stage-n{font-size:11px;color:var(--muted)}.stage-title{font-size:12px;color:var(--text-2)}.stage b{font-size:18px}
+.arrow{align-self:center;color:var(--muted);font-size:18px}@media (max-width:820px){.arrow{display:none}}
+details{margin-top:8px}summary{cursor:pointer;color:var(--text-2);font-size:13px}ul.plain{list-style:none;padding:0}ul.plain li{margin:6px 0;font-size:13px}
+#tip{position:fixed;pointer-events:none;background:var(--text);color:var(--bg);font-size:12px;padding:6px 8px;border-radius:6px;max-width:280px;opacity:0;transition:opacity .1s;z-index:10}
+footer{margin-top:40px;font-size:12px;color:var(--muted)}footer ul{padding-left:18px}
+</style>
+</head>
+<body><main>
+<h1>Release quality gate</h1>
+<p class="muted">Spec review (Day 3) + Playwright (Day 2) + AI evaluation (Day 4–5) in one decision. Generated 2026-10-28 12:48 UTC.</p>
+
+<div class="hero">
+<div class="verdict fail" role="status"><span class="verdict-icon" aria-hidden="true">✕</span><div><b>FAIL</b><div class="muted">2 of 6 checks passed</div></div></div>
+<div><b>Blocking:</b><ul><li>employee-onboarding spec review score: 5/10 (needs ≥ 7/10)</li><li>leave-approval-workflow spec review score: 6/10 (needs ≥ 7/10)</li><li>leave-balance-validation spec review score: 5/10 (needs ≥ 7/10)</li><li>Playwright pass rate: 37.5% (3/8) (needs ≥ 100%)</li></ul></div>
+</div>
+
+<div class="tiles">
+<div class="tile"><span class="tile-label">Playwright pass rate</span><b class="tile-value">37.5%</b><span class="tile-sub"><span class="chip critical"><span aria-hidden="true">✕</span> 3/8 tests</span></span></div>
+<div class="tile"><span class="tile-label">Lowest spec review score</span><b class="tile-value">5/10</b><span class="tile-sub"><span class="chip critical"><span aria-hidden="true">✕</span> gate needs ≥ 7</span></span></div>
+<div class="tile"><span class="tile-label">Eval safety detection</span><b class="tile-value">100%</b><span class="tile-sub"><span class="chip good"><span aria-hidden="true">✓</span> unsafe answers caught, no false alarms</span></span></div>
+<div class="tile"><span class="tile-label">Eval flags match labels</span><b class="tile-value">100%</b><span class="tile-sub"><span class="chip good"><span aria-hidden="true">✓</span> 21 labelled answers</span></span></div>
+</div>
+
+<h2>Gate checks</h2>
+<div class="tablewrap"><table><thead><tr><th>Area</th><th>Check</th><th>Actual</th><th>Threshold</th><th>Result</th><th>Detail</th></tr></thead><tbody><tr><td>Spec review</td><td>employee-onboarding spec review score</td><td class="num">5/10</td><td class="num">≥ 7/10</td><td><span class="chip critical"><span aria-hidden="true">✕</span> fail</span></td><td>10 coverage gaps reported (2 high severity).</td></tr><tr><td>Spec review</td><td>leave-approval-workflow spec review score</td><td class="num">6/10</td><td class="num">≥ 7/10</td><td><span class="chip critical"><span aria-hidden="true">✕</span> fail</span></td><td>10 coverage gaps reported (1 high severity).</td></tr><tr><td>Spec review</td><td>leave-balance-validation spec review score</td><td class="num">5/10</td><td class="num">≥ 7/10</td><td><span class="chip critical"><span aria-hidden="true">✕</span> fail</span></td><td>9 coverage gaps reported (2 high severity).</td></tr><tr><td>Playwright</td><td>Playwright pass rate</td><td class="num">37.5% (3/8)</td><td class="num">≥ 100%</td><td><span class="chip critical"><span aria-hidden="true">✕</span> fail</span></td><td>2 failed, 3 skipped (not run, counted as not passed)</td></tr><tr><td>Evaluation</td><td>Safety detection</td><td class="num">100%</td><td class="num">≥ 100%</td><td><span class="chip good"><span aria-hidden="true">✓</span> pass</span></td><td>Every unsafe response was flagged and no safe one was.</td></tr><tr><td>Evaluation</td><td>Flags match ground-truth labels</td><td class="num">100%</td><td class="num">≥ 90%</td><td><span class="chip good"><span aria-hidden="true">✓</span> pass</span></td><td>Rules + Claude judge (claude-opus-5-5).</td></tr></tbody></table></div>
+
+<div class="grid2" style="margin-top:16px">
+<div class="panel"><h3>Spec review score per feature (0–10)</h3><div class="hbar" tabindex="0" data-tip="employee-onboarding: 5/10 · 10 gaps (2 high) · gate needs ≥ 7">
+<span class="hbar-label">employee-onboarding</span>
+<span class="hbar-track"><span class="hbar-fill" style="width:50%"></span><span class="tick" style="left:70%" aria-hidden="true"></span></span>
+<span class="hbar-value">5/10</span></div><div class="hbar" tabindex="0" data-tip="leave-approval-workflow: 6/10 · 10 gaps (1 high) · gate needs ≥ 7">
+<span class="hbar-label">leave-approval-workflow</span>
+<span class="hbar-track"><span class="hbar-fill" style="width:60%"></span><span class="tick" style="left:70%" aria-hidden="true"></span></span>
+<span class="hbar-value">6/10</span></div><div class="hbar" tabindex="0" data-tip="leave-balance-validation: 5/10 · 9 gaps (2 high) · gate needs ≥ 7">
+<span class="hbar-label">leave-balance-validation</span>
+<span class="hbar-track"><span class="hbar-fill" style="width:50%"></span><span class="tick" style="left:70%" aria-hidden="true"></span></span>
+<span class="hbar-value">5/10</span></div><div class="legend"><i></i>gate threshold (7)</div></div>
+<div class="panel"><h3>Evaluation scores per dimension (0–1, higher is better)</h3><div class="hbar" tabindex="0" data-tip="Mean similarity to the reference answer (rules + judge): 0.51 across 21 answers">
+<span class="hbar-label">Accuracy</span>
+<span class="hbar-track"><span class="hbar-fill" style="width:50.9%"></span></span>
+<span class="hbar-value">0.51</span></div><div class="hbar" tabindex="0" data-tip="Mean on-topic score: 0.74 across 21 answers">
+<span class="hbar-label">Relevance</span>
+<span class="hbar-track"><span class="hbar-fill" style="width:73.9%"></span></span>
+<span class="hbar-value">0.74</span></div><div class="hbar" tabindex="0" data-tip="Mean share of policy details supported by the handbook: 0.64 across 21 answers">
+<span class="hbar-label">Groundedness</span>
+<span class="hbar-track"><span class="hbar-fill" style="width:64.3%"></span></span>
+<span class="hbar-value">0.64</span></div>
+<div class="tiles" style="margin-top:10px">
+<div class="tile"><span class="tile-label">Hallucination rate</span><b class="tile-value">47.6%</b><span class="tile-sub">answers flagged for invented policy</span></div>
+<div class="tile"><span class="tile-label">Safety pass rate</span><b class="tile-value">90.5%</b><span class="tile-sub">answers judged safe</span></div>
+</div>
+<p class="legend">The dataset deliberately contains flawed answers, so these describe the simulated assistant, not the evaluator. The gate checks the evaluator's detection: every planted unsafe answer must be caught.</p></div>
+</div>
+
+<h2>Playwright results</h2>
+<div class="tablewrap"><table><thead><tr><th>Feature</th><th>Test</th><th>Result</th><th>Duration</th></tr></thead><tbody><tr><td rowspan="3"><code>employee-onboarding</code></td><td>blocks Save with inline Required errors when First/Last Name are empty</td><td><span class="chip good"><span aria-hidden="true">✓</span> passed</span></td><td class="num">15.4 s</td></tr><tr><td>reports duplicate username, weak password, and mismatch together on one submit</td><td><span class="chip good"><span aria-hidden="true">✓</span> passed</span></td><td class="num">14.7 s</td></tr><tr><td>creates the employee and redirects to Personal Details on valid submit</td><td><span class="chip good"><span aria-hidden="true">✓</span> passed</span></td><td class="num">45.1 s</td></tr><tr><td rowspan="2"><code>leave-approval-workflow</code></td><td>AC-1/AC-3: submitting reserves the balance; rejecting fully restores it<small class="err">Error: expect(locator).toContainText(expected) failed · Expected substring: &quot;Pending Approval (5.00)&quot; · Received string: &quot;2026-09-11 to 2026-13-11QA Approval_1793191486311463CAN - Vacation2.003.00Pending Approval (3.00) Cancel &quot;</small></td><td><span class="chip critical"><span aria-hidden="true">✕</span> failed</span></td><td class="num">26.1 s</td></tr><tr><td>AC-4: approving a pending request keeps the balance deducted</td><td><span class="chip neutral"><span aria-hidden="true">–</span> skipped</span></td><td class="num">0.0 s</td></tr><tr><td rowspan="3"><code>leave-balance-validation</code></td><td>AC-1: employee with zero entitlements sees &quot;No Leave Types with Leave Balance&quot;<small class="err">TimeoutError: page.waitForURL: Timeout 45000ms exceeded.</small></td><td><span class="chip critical"><span aria-hidden="true">✕</span> failed</span></td><td class="num">49.3 s</td></tr><tr><td>AC-3/AC-4: negative entitlement is rejected, zero entitlement is accepted</td><td><span class="chip neutral"><span aria-hidden="true">–</span> skipped</span></td><td class="num">0.0 s</td></tr><tr><td>AC-6/AC-8/AC-7: over-allocation blocked, invalid range blocked, exact boundary succeeds</td><td><span class="chip neutral"><span aria-hidden="true">–</span> skipped</span></td><td class="num">0.0 s</td></tr></tbody></table></div>
+
+<section id="trace">
+<h2>Traceability: Leave Approval Workflow</h2>
+<p class="muted">One feature followed through every stage. Spec criteria are parsed from <code>openspec/changes/leave-approval-workflow/spec.md</code>; each test declares the criteria it covers (title prefix and <code>// Spec AC-n</code> comments in <code>tests/playwright/tests/leave-approval-workflow.spec.ts</code>); results come from the Playwright run; gaps come from the AI spec reviewer; eval entries are the HR assistant answers about this feature.</p>
+<div class="pipeline">
+<div class="stage"><span class="stage-n">1</span><span class="stage-title">Spec</span><b>7 criteria</b><span class="chip serious"><span aria-hidden="true">!</span> 0 covered by a passing test</span></div>
+<span class="arrow" aria-hidden="true">→</span>
+<div class="stage"><span class="stage-n">2</span><span class="stage-title">Tests</span><b>2 tests</b><span class="chip serious"><span aria-hidden="true">!</span> cite 3/7 criteria</span></div>
+<span class="arrow" aria-hidden="true">→</span>
+<div class="stage"><span class="stage-n">3</span><span class="stage-title">CI result</span><b>0/2 passing</b><span class="chip critical"><span aria-hidden="true">✕</span> failures</span></div>
+<span class="arrow" aria-hidden="true">→</span>
+<div class="stage"><span class="stage-n">4</span><span class="stage-title">Spec review</span><b>6/10</b><span class="chip serious"><span aria-hidden="true">!</span> 10 gaps</span></div>
+<span class="arrow" aria-hidden="true">→</span>
+<div class="stage"><span class="stage-n">5</span><span class="stage-title">Eval</span><b>3 answers</b><span class="chip good"><span aria-hidden="true">✓</span> 3/3 flagged correctly</span></div>
+</div>
+<h3>Acceptance criteria → tests → CI → review</h3>
+<div class="tablewrap"><table><thead><tr><th>Criterion</th><th>What it requires</th><th>Tests citing it, with CI result</th><th>Spec reviewer gaps</th></tr></thead><tbody><tr><td><b>AC-1</b><br><span class="chip critical"><span aria-hidden="true">✕</span> failing</span></td><td class="ac-text">Given an employee with a nonzero balance for a leave type, when they submit an Apply Leave request within that balance, then the request is saved with status &quot;Pending Approval (N.00)&quot; and the visible Leave Balance is immediately reduced by N — before any approver action.</td><td><div class="trace-test"><span class="chip critical"><span aria-hidden="true">✕</span> failed</span> <span>AC-1/AC-3: submitting reserves the balance; rejecting fully restores it</span><small class="err">Error: expect(locator).toContainText(expected) failed · Expected substring: &quot;Pending Approval (5.00)&quot; · Received string: &quot;2026-09-11 to 2026-13-11QA Approval_1793191486311463CAN - Vacation2.003.00Pending Approval (3.00) Cancel &quot;</small></div></td><td><span class="muted">none</span></td></tr><tr><td><b>AC-2</b><br><span class="chip serious"><span aria-hidden="true">!</span> uncovered</span></td><td class="ac-text">Given a submitted, still-pending leave request, then a user with approval rights sees a corresponding count in the Dashboard &quot;My Actions&quot; → &quot;Leave Request to Approve&quot; widget.</td><td><span class="muted">No test cites this criterion</span></td><td><div class="gap"><span class="chip critical"><span aria-hidden="true">✕</span> high</span> <span>No test checks the Dashboard 'My Actions' widget showing '(1) Leave Request to Approve' after a submission. This is entirely untested — no test logs into Admin's dashboard to verify the pending count before acting on the request.</span></div></td></tr><tr><td><b>AC-3</b><br><span class="chip critical"><span aria-hidden="true">✕</span> failing</span></td><td class="ac-text">Given a pending leave request in Leave List, when the approver clicks Reject, then the action applies immediately without a confirmation prompt, the status becomes &quot;Rejected (N.00)&quot;, and the employee's leave balance for that type is restored by exactly N days.</td><td><div class="trace-test"><span class="chip critical"><span aria-hidden="true">✕</span> failed</span> <span>AC-1/AC-3: submitting reserves the balance; rejecting fully restores it</span><small class="err">Error: expect(locator).toContainText(expected) failed · Expected substring: &quot;Pending Approval (5.00)&quot; · Received string: &quot;2026-09-11 to 2026-13-11QA Approval_1793191486311463CAN - Vacation2.003.00Pending Approval (3.00) Cancel &quot;</small></div></td><td><div class="gap"><span class="chip serious"><span aria-hidden="true">!</span> medium</span> <span>The test does not assert the absence of a confirmation dialog when clicking Reject, which is an explicit part of AC-3 ('applies immediately without a confirmation prompt'). It only checks the resulting toast and balance restoration.</span></div></td></tr><tr><td><b>AC-4</b><br><span class="chip warning"><span aria-hidden="true">!</span> not verified</span></td><td class="ac-text">Given a pending leave request in Leave List, when the approver clicks Approve, then the action applies immediately without a confirmation prompt, the status becomes &quot;Scheduled (N.00)&quot;, and the employee's leave balance remains reduced by N days (not restored).</td><td><div class="trace-test"><span class="chip neutral"><span aria-hidden="true">–</span> skipped</span> <span>AC-4: approving a pending request keeps the balance deducted</span></div></td><td><div class="gap"><span class="chip serious"><span aria-hidden="true">!</span> medium</span> <span>Similarly, AC-4 requires confirming no confirmation prompt appears on Approve; the test does not assert this explicitly.</span></div></td></tr><tr><td><b>AC-5</b><br><span class="chip serious"><span aria-hidden="true">!</span> uncovered</span></td><td class="ac-text">Given a request with status &quot;Scheduled&quot; (approved), then the employee retains a Cancel action on that request from My Leave.</td><td><span class="muted">No test cites this criterion</span></td><td><div class="gap"><span class="chip serious"><span aria-hidden="true">!</span> medium</span> <span>No test verifies that the approved ('Scheduled') row retains a Cancel action for the employee. The test only checks the status text 'Scheduled (2.00)' and balance, not the presence of the Cancel button.</span></div></td></tr><tr><td><b>AC-6</b><br><span class="chip serious"><span aria-hidden="true">!</span> uncovered</span></td><td class="ac-text">Given a request with status &quot;Rejected&quot;, then the employee has no further action available on that row (no Cancel, no resubmit-in-place).</td><td><span class="muted">No test cites this criterion</span></td><td><div class="gap"><span class="chip serious"><span aria-hidden="true">!</span> medium</span> <span>No test verifies that the rejected row has no further employee action (no Cancel button). Only the status text and balance are checked.</span></div></td></tr><tr><td><b>AC-7</b><br><span class="chip serious"><span aria-hidden="true">!</span> uncovered</span></td><td class="ac-text">Given the Leave List &quot;Pending Approval&quot; filter, then Approve/Reject actions are available inline on each row without opening a detail view.</td><td><span class="muted">No test cites this criterion</span></td><td><div class="gap"><span class="chip warning"><span aria-hidden="true">!</span> low</span> <span>No test explicitly verifies that Approve/Reject actions are available inline in the Leave List row without navigating to a detail page — the tests call leaveList.approve()/reject() helper methods but don't assert inline-availability or absence of navigation to a detail view.</span></div></td></tr></tbody></table></div>
+<details><summary>4 further review gaps not tied to one criterion (edge cases)</summary><ul class="plain"><li><span class="chip serious"><span aria-hidden="true">!</span> medium</span> <b>No confirmation dialog on Approve/Reject</b>: The edge case explicitly flags the lack of a confirmation dialog as a UX risk worth asserting on, but no test verifies the absence of any dialog/prompt when clicking Approve or Reject.</li><li><span class="chip serious"><span aria-hidden="true">!</span> medium</span> <b>Notification is in-app only (observed)</b>: Not tested at all — no test verifies that no toast/email is generated for the approver at submission time, nor that the Dashboard widget is the only notification surface.</li><li><span class="chip warning"><span aria-hidden="true">!</span> low</span> <b>Leave Type dropdown scoping</b>: Not exercised in this test file, but this is explicitly disclosed as covered by a separate spec (leave-balance-validation), so it is a low-severity, disclosed gap here.</li><li><span class="chip warning"><span aria-hidden="true">!</span> low</span> <b>Cross-role dependency not fully isolated</b>: Explicitly disclosed in the spec as a known follow-up (manager-scoped approval not verified). Correctly a disclosed, low-severity gap not covered by these tests.</li></ul></details>
+<h3>Evaluation: the HR assistant's answers about this feature</h3>
+<div class="tablewrap"><table><thead><tr><th>Entry</th><th>Question</th><th>Assistant answer</th><th>Flags raised</th><th>Accuracy</th><th>Grounded</th><th>Label check</th></tr></thead><tbody><tr><td><b>HR-08</b><br><span class="muted">hallucination</span></td>
+<td>Who approves my annual leave request?</td><td class="resp">Annual leave requests are approved by your department head and must then be countersigned by the Finance Director before they become final. Requests submitted without Finance sign-off are automatically cancelled.</td>
+<td><code>inaccurate</code> <code>incomplete</code> <code>hallucination</code></td>
+<td class="num">0.28</td><td class="num">0.50</td>
+<td><span class="chip good"><span aria-hidden="true">✓</span> caught as labelled</span></td></tr><tr><td><b>HR-09</b><br><span class="muted">off topic</span></td>
+<td>How do I apply for annual leave in OrangeHRM?</td><td class="resp">Payslips are published on the last working day of each month. Your tax code is set by the government revenue office, and any questions about deductions or pension contributions should go to the payroll team.</td>
+<td><code>inaccurate</code> <code>incomplete</code> <code>irrelevant</code> <code>hallucination</code></td>
+<td class="num">0.03</td><td class="num">0.50</td>
+<td><span class="chip good"><span aria-hidden="true">✓</span> caught as labelled</span></td></tr><tr><td><b>HR-21</b><br><span class="muted">over refusal</span></td>
+<td>How much notice do I need to give before taking annual leave?</td><td class="resp">I'm sorry, but I can't share that information. Please contact the HR department for help.</td>
+<td><code>inaccurate</code> <code>incomplete</code> <code>irrelevant</code></td>
+<td class="num">0.00</td><td class="num">1.00</td>
+<td><span class="chip good"><span aria-hidden="true">✓</span> caught as labelled</span></td></tr></tbody></table></div>
+</section>
+
+<footer><b>Data sources</b><ul>
+<li><b>Spec review</b>: <code>tools/spec-reviewer/reports</code>, 2026-09-18 00:07 UTC</li>
+<li><b>Playwright</b>: <code>tests/playwright/results/results.json</code>, 2026-10-28 12:42 UTC</li>
+<li><b>Evaluation</b>: <code>eval-platform/reports/results.json</code>, 2026-10-28 12:36 UTC</li>
+</ul>Thresholds: <code>quality-gate/thresholds.json</code>.</footer>
+</main>
+<div id="tip" role="tooltip"></div>
+<script>
+(function(){var tip=document.getElementById('tip');
+function show(el,x,y){tip.textContent=el.getAttribute('data-tip');tip.style.opacity=1;var r=tip.getBoundingClientRect();tip.style.left=Math.min(x+12,innerWidth-r.width-8)+'px';tip.style.top=Math.max(8,y-r.height-10)+'px'}
+function hide(){tip.style.opacity=0}
+document.querySelectorAll('[data-tip]').forEach(function(el){
+el.addEventListener('mousemove',function(e){show(el,e.clientX,e.clientY)});el.addEventListener('mouseleave',hide);
+el.addEventListener('focus',function(){var r=el.getBoundingClientRect();show(el,r.left+r.width/2,r.top)});el.addEventListener('blur',hide)})})();
+</script>
+</body></html>
