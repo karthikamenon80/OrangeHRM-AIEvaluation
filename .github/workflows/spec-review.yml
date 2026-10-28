@@ -1,8 +1,15 @@
 name: AI Spec Reviewer
 
-# Manual only: start it from Actions -> AI Spec Reviewer -> Run workflow.
-# Each run calls Claude Sonnet once per reviewed feature (~$0.03 each).
+# Runs automatically on push/merge to master when specs or tests changed
+# (not on other branches or PRs), and by hand from Actions -> AI Spec
+# Reviewer -> Run workflow, on any branch. Each run calls Claude Sonnet once
+# per reviewed feature (~$0.03 each).
 on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'openspec/changes/**'
+      - 'tests/playwright/**'
   workflow_dispatch:
     inputs:
       review_all:
