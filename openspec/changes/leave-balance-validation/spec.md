@@ -43,8 +43,16 @@ sign/range rule.
 Adding a second entitlement for a leave type/period that already has one
 does **not** create a duplicate or silently overwrite — it shows an explicit
 confirmation dialog: **"Updating Entitlement — Existing Entitlement value
-X.00 will be updated to Y.00"** with Confirm/Cancel. Confirming replaces the
-value (it is a replace, not an additive top-up).
+X.00 will be updated to Y.00"** with Confirm/Cancel, where **Y = X + the
+amount entered**. Confirming adds the new amount to the existing value (it
+is an additive top-up, not a replace). Cancel leaves the existing value
+unchanged.
+
+**Correction (re-verified while closing spec-review gaps, Day 6):** the
+Day 1 write-up said confirming *replaces* the value. That was observed only
+going from 0.00 to 5.00, where replacing and adding give the same result.
+Adding 3 days on top of an existing 5.00 shows "Existing Entitlement value
+5.00 will be updated to **8.00**", so the form is additive.
 
 ### Over-allocation (requesting more than the balance)
 With a balance of 5.00 days, entering a date range covering more working days
@@ -93,9 +101,10 @@ To.
    record (distinguish from AC-3: zero is valid, negative is not).
 5. **AC-5**: Given an employee already has an entitlement for a given leave
    type and period, when an admin adds another entitlement for the same
-   employee/type/period, then a confirmation dialog names the existing and
-   new values before any change is applied, and confirming replaces
-   (not adds to) the existing value.
+   employee/type/period, then a confirmation dialog names the existing
+   value and the resulting value (existing + added) before any change is
+   applied; confirming adds to the existing value, and cancelling leaves it
+   unchanged.
 6. **AC-6**: Given a leave balance of N days, when a request for more than N
    working days is submitted, then the balance panel shows "Balance not
    sufficient" before submission, and submitting anyway is rejected
@@ -129,11 +138,12 @@ To.
   fractional entitlements are implied to be valid; not independently
   re-verified with an actual fractional value in this pass (flagged as a
   follow-up).
-- **Re-allocation is a destructive replace, not additive** — an admin
-  re-running Add Entitlement for the same employee/type/period will silently
-  lose the original value if they don't read the confirmation dialog
-  carefully (it does show old → new values, but there's no way to add
-  incrementally through this form).
+- **Re-allocation is an additive top-up, not a replace** — an admin who
+  re-runs Add Entitlement intending to *set* a value (e.g. correcting 5 to
+  3) will instead raise it (to 8) unless they read the confirmation dialog,
+  which shows old → resulting values. There is no way to set an absolute
+  value through this form. (Corrected on Day 6; originally recorded as a
+  destructive replace.)
 - **Boundary is inclusive at exact match**, which is easy to get backwards
   when writing assertions (`>` vs `>=`) — explicitly worth a dedicated
   regression test given how easy this boundary is to flip during any future

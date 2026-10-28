@@ -18,4 +18,9 @@ export class MyLeavePage {
   rowForDate(dateText: string): Locator {
     return this.page.locator('.oxd-table-card').filter({ hasText: dateText });
   }
+
+  /** The employee's own Cancel action on a row (offered for pending and approved requests, not rejected ones). */
+  cancelButton(row: Locator): Locator {
+    return row.getByRole('button', { name: 'Cancel' });
+  }
 }

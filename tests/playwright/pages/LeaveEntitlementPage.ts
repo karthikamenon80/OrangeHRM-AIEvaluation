@@ -66,6 +66,11 @@ export class LeaveEntitlementPage {
     return this.page.getByRole('button', { name: 'Confirm' });
   }
 
+  /** "Updating Entitlement — Existing Entitlement value X will be updated to Y" (spec AC-5). */
+  get replaceDialog(): Locator {
+    return this.page.locator('.oxd-dialog-sheet').filter({ hasText: 'Updating Entitlement' });
+  }
+
   async selectEmployee(fullName: string): Promise<void> {
     await this.employeeNameInput.fill(fullName);
     await this.page.getByRole('option', { name: fullName }).click();

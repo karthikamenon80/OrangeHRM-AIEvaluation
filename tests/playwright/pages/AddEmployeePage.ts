@@ -6,6 +6,8 @@ export interface NewEmployeeDetails {
   firstName: string;
   lastName: string;
   middleName?: string;
+  /** Replaces the pre-filled id; see uniqueEmployeeId() for why fixtures should set one. */
+  employeeId?: string;
   username?: string;
   password?: string;
   confirmPassword?: string;
@@ -72,6 +74,20 @@ export class AddEmployeePage {
     return this.errorNearInput(this.lastNameInput);
   }
 
+  /** Pre-filled with an auto-generated id; free text, optional (spec AC-2). */
+  get employeeIdInput(): Locator {
+    return this.fieldByLabel('Employee Id');
+  }
+
+  /** The "Very Weak" ... "Strong" badge shown above the Password field once typing starts. */
+  get passwordStrengthChip(): Locator {
+    return this.page.locator('.orangehrm-password-chip');
+  }
+
+  get employeeIdError(): Locator {
+    return this.errorFor('Employee Id');
+  }
+
   get usernameError(): Locator {
     return this.errorFor('Username');
   }
@@ -110,6 +126,9 @@ export class AddEmployeePage {
     if (details.middleName) {
       await this.middleNameInput.fill(details.middleName);
     }
+    if (details.employeeId !== undefined) {
+      await this.employeeIdInput.fill(details.employeeId);
+    }
     if (details.username !== undefined) {
       await this.fieldByLabel('Username').fill(details.username);
     }
@@ -125,8 +144,13 @@ export class AddEmployeePage {
     await this.saveButton.click();
   }
 
-  /** URL becomes /pim/viewPersonalDetails/empNumber/{n} on success (spec AC-6). */
+  /**
+   * URL becomes /pim/viewPersonalDetails/empNumber/{n} on success (spec AC-6).
+   * Saving an employee together with a login account is the slowest call
+   * in this suite and has been observed past the default 45s navigation
+   * timeout on the shared demo under load, so it gets its own budget.
+   */
   async waitForPersonalDetailsRedirect(): Promise<void> {
-    await this.page.waitForURL(/pim\/viewPersonalDetails\/empNumber\/\d+/);
+    await this.page.waitForURL(/pim\/viewPersonalDetails\/empNumber\/\d+/, { timeout: 90_000 });
   }
 }

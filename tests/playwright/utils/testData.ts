@@ -14,4 +14,14 @@ export function uniqueUsername(prefix: string): string {
   return `${prefix}_${uniqueSuffix()}`.slice(0, 40);
 }
 
+/**
+ * A 10-character Employee Id (the field's limit) unlikely to be taken.
+ * Don't rely on the id Add Employee pre-fills: it is "the next free id"
+ * when the form opened, and on the shared demo someone else can take it
+ * before Save, which fails with "Employee Id already exists".
+ */
+export function uniqueEmployeeId(): string {
+  return `${Date.now()}`.slice(-7) + `${Math.floor(Math.random() * 1000)}`.padStart(3, '0');
+}
+
 export const STRONG_PASSWORD = 'Str0ng!QaPass99';

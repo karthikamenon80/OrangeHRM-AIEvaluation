@@ -38,11 +38,25 @@ export class LeaveListPage {
     await this.searchButton.click();
   }
 
+  /** The inline Approve button in the employee's row (spec AC-7: no detail page needed). */
+  approveButton(employeeFullName: string): Locator {
+    return this.rowForEmployee(employeeFullName).getByRole('button', { name: 'Approve' });
+  }
+
+  rejectButton(employeeFullName: string): Locator {
+    return this.rowForEmployee(employeeFullName).getByRole('button', { name: 'Reject' });
+  }
+
+  /** OrangeHRM's own modal; asserted absent to prove Approve/Reject apply without a prompt. */
+  get confirmationDialog(): Locator {
+    return this.page.locator('.oxd-dialog-sheet');
+  }
+
   async approve(employeeFullName: string): Promise<void> {
-    await this.rowForEmployee(employeeFullName).getByRole('button', { name: 'Approve' }).click();
+    await this.approveButton(employeeFullName).click();
   }
 
   async reject(employeeFullName: string): Promise<void> {
-    await this.rowForEmployee(employeeFullName).getByRole('button', { name: 'Reject' }).click();
+    await this.rejectButton(employeeFullName).click();
   }
 }

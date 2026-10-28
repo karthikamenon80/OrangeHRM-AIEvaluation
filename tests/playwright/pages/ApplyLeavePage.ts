@@ -32,6 +32,10 @@ export class ApplyLeavePage {
     return this.fieldByLabel('To Date').locator('input');
   }
 
+  get fromDateError(): Locator {
+    return this.fieldByLabel('From Date').locator('.oxd-input-field-error-message');
+  }
+
   get toDateError(): Locator {
     return this.fieldByLabel('To Date').locator('.oxd-input-field-error-message');
   }
@@ -65,13 +69,30 @@ export class ApplyLeavePage {
    * what a real user does by tabbing or clicking away.
    */
   async setFromDate(yyyyDdMm: string): Promise<void> {
-    await this.fromDateInput.fill(yyyyDdMm);
-    await this.fromDateInput.blur();
+    await this.fillDate(this.fromDateInput, yyyyDdMm);
   }
 
   async setToDate(yyyyDdMm: string): Promise<void> {
-    await this.toDateInput.fill(yyyyDdMm);
-    await this.toDateInput.blur();
+    await this.fillDate(this.toDateInput, yyyyDdMm);
+  }
+
+  /**
+   * Each valid date change fires a leave-balance API call, and the panel
+   * shows whichever response arrives LAST. Setting From and To back to back
+   * lets the stale "From only" answer land after the full-range one and
+   * overwrite "Balance not sufficient" with the plain balance. So each
+   * setter waits for the recalculation it triggered before returning.
+   * Invalid dates trigger no call; the short timeout covers that case.
+   */
+  private async fillDate(input: Locator, yyyyDdMm: string): Promise<void> {
+    const recalculated = this.page
+      .waitForResponse((r) => r.url().includes('/api/v2/leave/leave-balance/leave-type/') && r.url().includes('fromDate='), {
+        timeout: 5_000,
+      })
+      .catch(() => null);
+    await input.fill(yyyyDdMm);
+    await input.blur();
+    await recalculated;
   }
 
   async apply(): Promise<void> {

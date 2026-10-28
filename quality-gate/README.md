@@ -61,10 +61,18 @@ A final `gate` job downloads all three, runs the gate, writes the result
 table to the job summary, uploads the dashboard as the `quality-dashboard`
 artifact, and fails the workflow if the gate fails.
 
+**Cost control.** The AI evaluation calls Claude Opus about 22 times
+(roughly $1–2 a run), so it does **not** run on push or PR. To include it,
+start the workflow by hand: **Actions → Quality Gate → Run workflow**, then
+tick **Run the AI evaluation**. Every other run judges the newest committed
+eval snapshot in `eval-platform/demo-reports/`. The job summary and the
+dashboard's "Data sources" footer mark it as a committed snapshot. The
+spec review still runs on every build, because it is three Claude Sonnet
+calls (about $0.10).
+
 Repo secrets: `ANTHROPIC_API_KEY` and `ANTHROPIC_WORKSPACE_ID` (both
 optional). Without them, the spec review falls back to the committed
-baseline, the eval runs rules-only, and the dashboard says so in its "Data
-sources" footer.
+baseline and the dashboard says so.
 
 ## How traceability works
 

@@ -12,7 +12,11 @@ export class LoginPage {
     await this.page.locator('input[name="username"]').fill(username);
     await this.page.locator('input[name="password"]').fill(password);
     await this.page.locator('button[type="submit"]').click();
-    await this.page.waitForURL(/dashboard\/index/);
+    // Wait to leave the login page rather than for the dashboard: after a
+    // logout, OrangeHRM sends the next login back to the last page visited
+    // in that browser (e.g. an employee's Personal Details), not always to
+    // the dashboard. Callers navigate to the screen they need anyway.
+    await this.page.waitForURL((url) => !/\/auth\/login/.test(url.pathname));
     await waitForAppReady(this.page);
   }
 

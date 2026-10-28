@@ -110,10 +110,13 @@ re-validated for uniqueness by the observed flow.
   username and password-strength errors, i.e., the form does not stop at the
   first invalid field — all invalid fields are reported together in one
   submit.
-- **Non-unique Employee Id**: the free-text Employee Id field is not
-  re-validated for uniqueness by the UI at creation time — two employees
-  could plausibly end up with the same Employee Id (only Username, when a
-  login is created, is enforced unique).
+- **Non-unique Employee Id**: Employee Id **is** enforced unique at
+  creation time. Saving a new employee with another employee's Employee Id
+  fails with an inline **"Employee Id already exists"** error under the
+  field, and no employee is created. Leaving it empty is still allowed (AC-2).
+  **Correction (verified on Day 6):** the Day 1 write-up guessed the
+  opposite ("two employees could plausibly end up with the same Employee
+  Id") without exercising it.
 - **Toggling Create Login Details off after entering data**: not exercised in
   this pass — flagged as a follow-up check (does previously entered
   username/password data get discarded or silently retained?).

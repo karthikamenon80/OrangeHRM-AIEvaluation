@@ -49,4 +49,4 @@ jobs:
         with:
           name: spec-review-reports
           path: tools/spec-reviewer/reports/
-          retention-days: 30
+          retention-days: 90
