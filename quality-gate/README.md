@@ -54,21 +54,23 @@ to a workspace.
 
 ## In CI
 
-`.github/workflows/quality-gate.yml` runs on push and PR to `master`/`main`,
-and on manual dispatch. It runs Playwright, the spec reviewer and the eval
+`.github/workflows/quality-gate.yml` runs automatically on push/merge to
+`master`, and by hand on any branch (**Actions → Quality Gate → Run
+workflow**). Feature branches and PRs don't trigger it. It runs Playwright, the spec reviewer and the eval
 platform as parallel jobs. Each uploads its raw output even when it fails.
 A final `gate` job downloads all three, runs the gate, writes the result
 table to the job summary, uploads the dashboard as the `quality-dashboard`
 artifact, and fails the workflow if the gate fails.
 
 **Cost control.** The AI evaluation calls Claude Opus about 22 times
-(roughly $1–2 a run), so it does **not** run on push or PR. To include it,
-start the workflow by hand: **Actions → Quality Gate → Run workflow**, then
-tick **Run the AI evaluation**. Every other run judges the newest committed
-eval snapshot in `eval-platform/demo-reports/`. The job summary and the
-dashboard's "Data sources" footer mark it as a committed snapshot. The
-spec review still runs on every build, because it is three Claude Sonnet
-calls (about $0.10).
+(roughly $1–2 a run), so it is opt-in: tick **Run the AI evaluation** when
+starting the workflow by hand. It never runs on push. Otherwise the gate judges the newest committed eval
+snapshot in `eval-platform/demo-reports/`, and the job summary and the
+dashboard's "Data sources" footer mark it as a committed snapshot. The spec
+review runs on every Quality Gate run: three Claude Sonnet calls (about
+$0.10). All three workflows (Quality Gate, Playwright Suite, AI Spec
+Reviewer) run automatically only on `master`; work on feature branches
+spends no Claude credits unless you start a run by hand.
 
 Repo secrets: `ANTHROPIC_API_KEY` and `ANTHROPIC_WORKSPACE_ID` (both
 optional). Without them, the spec review falls back to the committed

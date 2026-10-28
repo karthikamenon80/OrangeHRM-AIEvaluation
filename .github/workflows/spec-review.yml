@@ -1,15 +1,21 @@
 name: AI Spec Reviewer
 
+# Runs automatically on push/merge to master when specs or tests changed
+# (not on other branches or PRs), and by hand from Actions -> AI Spec
+# Reviewer -> Run workflow, on any branch. Each run calls Claude Sonnet once
+# per reviewed feature (~$0.03 each).
 on:
-  pull_request:
-    paths:
-      - 'openspec/changes/**'
-      - 'tests/playwright/**'
   push:
     branches: [master, main]
     paths:
       - 'openspec/changes/**'
       - 'tests/playwright/**'
+  workflow_dispatch:
+    inputs:
+      review_all:
+        description: 'Review all features (3 Claude calls, ~$0.10). Unticked = only the features changed in the latest commit, or all if it changed none.'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -37,8 +43,10 @@ jobs:
         run: npm ci
 
       - name: Run AI spec review
-        run: npm run review
+        run: |
+          if [ "$REVIEW_ALL" = "true" ]; then npm run review -- --all; else npm run review; fi
         env:
+          REVIEW_ALL: ${{ inputs.review_all }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

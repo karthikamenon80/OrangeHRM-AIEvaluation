@@ -38,11 +38,16 @@ Flags:
 
 ## How it's wired into CI
 
-`.github/workflows/spec-review.yml` runs this on every push/PR that touches
-`openspec/changes/**` or `tests/playwright/**`, with no `--slug`/`--all` flag
-— it lets the script auto-detect which features changed from `git diff`, and
-posts (or updates, on repeat pushes to the same PR) one PR comment with the
-combined review.
+`.github/workflows/spec-review.yml` runs automatically on push/merge to
+`master` when `openspec/changes/**` or `tests/playwright/**` changed, and by
+hand on any branch (**Actions → AI Spec Reviewer → Run workflow**). Feature
+branches and PRs don't trigger it. On a manual run, tick **Review all
+features** to pass `--all`. Otherwise,
+it runs with no `--slug`/`--all` flag and the script auto-detects which
+features the latest commit changed from `git diff`, reviewing all of them if
+none changed. The combined review is uploaded as the `spec-review-reports`
+artifact. The PR-comment code (`githubComment.ts`) only posts when the run
+was triggered by a pull request, so these runs don't comment.
 
 ## Demo: proving it catches a real gap
 
