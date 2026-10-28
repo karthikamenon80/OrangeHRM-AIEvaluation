@@ -1,5 +1,5 @@
 import { Locator, Page } from '@playwright/test';
-import { waitForAppReady } from '../utils/waits';
+import { openScreen } from '../utils/waits';
 
 /**
  * The approver-side "Leave List" screen. Approve/Reject render as plain
@@ -12,8 +12,7 @@ export class LeaveListPage {
   constructor(private readonly page: Page) {}
 
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/viewLeaveList');
-    await waitForAppReady(this.page);
+    await openScreen(this.page, '/web/index.php/leave/viewLeaveList');
   }
 
   get employeeNameInput(): Locator {

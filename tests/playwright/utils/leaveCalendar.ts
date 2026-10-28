@@ -1,5 +1,6 @@
 import { Page } from '@playwright/test';
 import { addDays, nextMonday } from './dates';
+import { DEMO_OUTAGE_RETRIES, DEMO_OUTAGE_WAIT_MS } from './waits';
 
 const API = '/web/index.php/api/v2/leave';
 
@@ -10,12 +11,27 @@ function isoDate(date: Date): string {
   return `${date.getFullYear()}-${mm}-${dd}`;
 }
 
+/**
+ * A 403 here, with a valid admin session, means someone switched the Leave
+ * module off on the shared demo (see openScreen in ./waits). Retry like
+ * openScreen does before giving up with an explanation.
+ */
 async function getJson<T>(page: Page, path: string): Promise<T> {
-  const response = await page.request.get(`${API}${path}`);
-  if (!response.ok()) {
-    throw new Error(`GET ${API}${path} failed: ${response.status()} ${await response.text()}`);
+  for (let attempt = 1; ; attempt++) {
+    const response = await page.request.get(`${API}${path}`);
+    if (response.ok()) return (await response.json()) as T;
+    const detail = `GET ${API}${path} failed: ${response.status()} ${await response.text()}`;
+    if (response.status() !== 403) throw new Error(detail);
+    if (attempt > DEMO_OUTAGE_RETRIES) {
+      throw new Error(
+        `${detail}. Still forbidden after ${DEMO_OUTAGE_RETRIES} retries ${DEMO_OUTAGE_WAIT_MS / 1000} s apart: ` +
+          'the Leave module is probably switched off on the shared OrangeHRM demo (Admin -> Configuration -> Modules). ' +
+          'Someone else changed the demo; this is not a product or test bug. Re-run later.'
+      );
+    }
+    console.warn(`[demo] ${API}${path} returned 403; retry ${attempt}/${DEMO_OUTAGE_RETRIES} in ${DEMO_OUTAGE_WAIT_MS / 1000} s.`);
+    await page.waitForTimeout(DEMO_OUTAGE_WAIT_MS);
   }
-  return (await response.json()) as T;
 }
 
 /**

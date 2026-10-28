@@ -1,20 +1,18 @@
 import { Locator, Page } from '@playwright/test';
 import { exactLabel } from '../utils/locators';
-import { waitForAppReady } from '../utils/waits';
+import { openScreen } from '../utils/waits';
 
 export class LeaveEntitlementPage {
   constructor(private readonly page: Page) {}
 
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/addLeaveEntitlement');
-    await waitForAppReady(this.page);
+    await openScreen(this.page, '/web/index.php/leave/addLeaveEntitlement');
     await this.employeeNameInput.waitFor();
   }
 
   /** The admin-facing list at Leave -> Entitlements -> Employee Entitlements. */
   async gotoList(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/viewLeaveEntitlements');
-    await waitForAppReady(this.page);
+    await openScreen(this.page, '/web/index.php/leave/viewLeaveEntitlements');
     await this.employeeNameInput.waitFor();
   }
 
