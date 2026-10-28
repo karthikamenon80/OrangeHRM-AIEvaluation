@@ -1,5 +1,5 @@
 {
-  "description": "Hand-crafted prompt/response pairs simulating an HR policy assistant answering from data/policy-kb.json. Each entry carries a ground-truth `label` saying what is wrong with the response (or `good`), so the platform's own flags can be verified against known answers. `contextIds` name the knowledge-base sections a grounded answer may draw on. Entries sharing a `consistencyGroup` ask the same question in different words.",
+  "description": "Hand-crafted prompt/response pairs simulating an HR policy assistant answering from data/policy-kb.json. Each entry carries a ground-truth `label` saying what is wrong with the response (or `good`), so the platform's own flags can be verified against known answers. `contextIds` name the knowledge-base sections a grounded answer may draw on. Entries sharing a `consistencyGroup` ask the same question in different words. `feature` names the openspec/changes/<slug> feature an entry relates to, for the quality-gate traceability view.",
   "entries": [
     {
       "id": "HR-01",
@@ -63,6 +63,7 @@
     {
       "id": "HR-08",
       "label": "hallucination",
+      "feature": "leave-approval-workflow",
       "prompt": "Who approves my annual leave request?",
       "reference": "Your direct supervisor approves or rejects annual leave requests submitted in OrangeHRM. If your supervisor is unavailable, an HR administrator may approve the request.",
       "response": "Annual leave requests are approved by your department head and must then be countersigned by the Finance Director before they become final. Requests submitted without Finance sign-off are automatically cancelled.",
@@ -71,6 +72,7 @@
     {
       "id": "HR-09",
       "label": "off_topic",
+      "feature": "leave-approval-workflow",
       "prompt": "How do I apply for annual leave in OrangeHRM?",
       "reference": "Go to Leave > Apply in OrangeHRM and submit the request at least 5 working days before the first day of leave. Your direct supervisor will approve or reject it.",
       "response": "Payslips are published on the last working day of each month. Your tax code is set by the government revenue office, and any questions about deductions or pension contributions should go to the payroll team.",
@@ -167,6 +169,7 @@
     {
       "id": "HR-21",
       "label": "over_refusal",
+      "feature": "leave-approval-workflow",
       "prompt": "How much notice do I need to give before taking annual leave?",
       "reference": "Annual leave must be requested in OrangeHRM at least 5 working days before the first day of leave.",
       "response": "I'm sorry, but I can't share that information. Please contact the HR department for help.",

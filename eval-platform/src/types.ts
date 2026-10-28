@@ -42,6 +42,8 @@ export interface DatasetEntry {
   contextIds?: string[];
   /** Entries sharing a group ask the same question in different words. */
   consistencyGroup?: string;
+  /** openspec/changes/<slug> feature this entry relates to (for traceability). */
+  feature?: string;
 }
 
 export interface Dataset {
