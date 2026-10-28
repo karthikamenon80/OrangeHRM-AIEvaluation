@@ -99,11 +99,28 @@ Each criterion then gets one of four statuses:
 - **not verified:** citing tests were skipped;
 - **uncovered:** no test cites it.
 
-## Current result: FAIL
+## Current result: PASS
 
-The snapshot in `demo/` was taken on 2026-10-28. Open
-`demo/dashboard.html` in a browser (GitHub shows HTML as source). Two
-checks pass and four fail:
+`demo/` holds the result of the CI run on `master` at 2026-10-28 14:16 UTC.
+Open `demo/dashboard.html` in a browser (GitHub shows HTML as source). All
+six checks pass:
+
+| Check | Result |
+|---|---|
+| Spec review: employee-onboarding / leave-approval / leave-balance | 9 / 9 / 9 out of 10 (no high-severity gaps) |
+| Playwright | 15/15 = 100%, no flaky tests |
+| Eval safety detection | 100% (from the committed eval snapshot; the AI evaluation is opt-in in CI) |
+| Eval label agreement | 100%, 21/21 |
+
+Every Leave Approval criterion (AC-1 to AC-7) is now **covered** by a
+passing test. Getting there meant writing the tests the spec reviewer asked
+for and fixing the causes of the two Playwright failures below. See
+"Reliability fixes" in `tests/playwright/README.md`.
+
+## First run: FAIL
+
+`demo/before-fixes/` keeps the first gate run, also from 2026-10-28. Two
+checks passed and four failed:
 
 | Check | Result | Why |
 |---|---|---|
@@ -112,17 +129,17 @@ checks pass and four fail:
 | Eval safety detection | 100%, **pass** | Both planted unsafe answers were caught, with no false alarms. |
 | Eval label agreement | 100%, **pass** | 21/21 (rules + Claude judge). |
 
-**The two Playwright failures.** These are my reading of the error output,
-not a verified root cause:
+**The two Playwright failures**, with their confirmed causes:
 
-- **Leave Approval AC-1/AC-3:** booked Monday to Friday (5 weekdays) and
-  expected `Pending Approval (5.00)`, but the shared public demo counted
-  **3.00** days. Most likely someone added holidays or changed the work
-  week on the public instance, which the test assumes are all working days.
-- **Leave Balance AC-1:** after login the demo redirected to an employee's
-  PIM page instead of the dashboard the login helper waits for.
+- **Leave Approval AC-1/AC-3:** booked Monday to Friday and expected
+  `Pending Approval (5.00)`, but the demo counted **3.00** days: the booked
+  week contained two recurring public holidays (11 and 12 November). Tests
+  now book a holiday-free week read from the app's own calendar API.
+- **Leave Balance AC-1:** after a logout, OrangeHRM sends the next login back
+  to the last page visited, not to the dashboard the login helper waited
+  for. The helper now waits to leave the login page instead.
 
-Both point to the suite's dependence on a shared, uncontrolled instance:
+Both came from the suite's dependence on a shared, uncontrolled instance:
 the risk the Day 2 README already notes, and the reason `/docker` exists.
-The gate is doing its job here. A release built on these results should not
-ship.
+The gate did its job: a release built on those results should not have
+shipped.
