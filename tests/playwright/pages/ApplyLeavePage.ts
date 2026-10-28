@@ -1,13 +1,12 @@
 import { Locator, Page } from '@playwright/test';
 import { exactLabel } from '../utils/locators';
-import { waitForAppReady } from '../utils/waits';
+import { openScreen } from '../utils/waits';
 
 export class ApplyLeavePage {
   constructor(private readonly page: Page) {}
 
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/applyLeave');
-    await waitForAppReady(this.page);
+    await openScreen(this.page, '/web/index.php/leave/applyLeave');
   }
 
   private fieldByLabel(label: string): Locator {

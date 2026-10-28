@@ -66,6 +66,16 @@ bug or random flakiness; each had a specific, reproducible cause:
   overwrite "Balance not sufficient". The date setters in `ApplyLeavePage`
   now wait for the recalculation they triggered.
 
+A later run failed again, this time from outside the code. Mid-run, someone
+using the shared demo switched the **Leave module off** (Admin →
+Configuration → Modules). The server then renders a `<disabled-module>`
+placeholder ("403 Module Forbidden") instead of Apply Leave, and the leave
+API returns 403, for every user. The trace shows Apply Leave loading
+normally and then, 4 seconds later, the placeholder. Page objects now open
+screens through `openScreen()` (`utils/waits.ts`), and `leaveCalendar.ts`
+retries 403s. Both wait out a disabled module for about a minute, then fail
+with a message naming the real cause instead of a missing-element timeout.
+
 Writing the extra tests that close the AI spec reviewer's gaps also
 corrected two specs. Entitlements are **added** on top of an existing value,
 not replaced (`leave-balance-validation` AC-5), and Employee Id **is**

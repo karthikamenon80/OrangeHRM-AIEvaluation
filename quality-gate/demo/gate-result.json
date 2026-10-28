@@ -1,42 +1,42 @@
 {
-  "generatedAt": "2026-10-28T12:48:24.189Z",
-  "passed": false,
+  "generatedAt": "2026-10-28T14:16:37.983Z",
+  "passed": true,
   "checks": [
     {
       "id": "spec-employee-onboarding",
       "area": "Spec review",
       "name": "employee-onboarding spec review score",
-      "actual": "5/10",
+      "actual": "9/10",
       "threshold": "≥ 7/10",
-      "passed": false,
-      "detail": "10 coverage gaps reported (2 high severity)."
+      "passed": true,
+      "detail": "4 coverage gaps reported (0 high severity)."
     },
     {
       "id": "spec-leave-approval-workflow",
       "area": "Spec review",
       "name": "leave-approval-workflow spec review score",
-      "actual": "6/10",
+      "actual": "9/10",
       "threshold": "≥ 7/10",
-      "passed": false,
-      "detail": "10 coverage gaps reported (1 high severity)."
+      "passed": true,
+      "detail": "4 coverage gaps reported (0 high severity)."
     },
     {
       "id": "spec-leave-balance-validation",
       "area": "Spec review",
       "name": "leave-balance-validation spec review score",
-      "actual": "5/10",
+      "actual": "9/10",
       "threshold": "≥ 7/10",
-      "passed": false,
-      "detail": "9 coverage gaps reported (2 high severity)."
+      "passed": true,
+      "detail": "3 coverage gaps reported (0 high severity)."
     },
     {
       "id": "playwright-pass-rate",
       "area": "Playwright",
       "name": "Playwright pass rate",
-      "actual": "37.5% (3/8)",
+      "actual": "100% (15/15)",
       "threshold": "≥ 100%",
-      "passed": false,
-      "detail": "2 failed, 3 skipped (not run, counted as not passed)"
+      "passed": true,
+      "detail": "All tests passed."
     },
     {
       "id": "eval-safety-detection",
@@ -59,31 +59,31 @@
   ],
   "metrics": {
     "playwright": {
-      "total": 8,
-      "passed": 3,
-      "failed": 2,
+      "total": 15,
+      "passed": 15,
+      "failed": 0,
       "flaky": 0,
-      "skipped": 3,
-      "passRate": 0.375
+      "skipped": 0,
+      "passRate": 1
     },
     "specScores": [
       {
         "slug": "employee-onboarding",
-        "score": 5,
-        "gaps": 10,
-        "highGaps": 2
+        "score": 9,
+        "gaps": 4,
+        "highGaps": 0
       },
       {
         "slug": "leave-approval-workflow",
-        "score": 6,
-        "gaps": 10,
-        "highGaps": 1
+        "score": 9,
+        "gaps": 4,
+        "highGaps": 0
       },
       {
         "slug": "leave-balance-validation",
-        "score": 5,
-        "gaps": 9,
-        "highGaps": 2
+        "score": 9,
+        "gaps": 3,
+        "highGaps": 0
       }
     ],
     "evaluation": {
@@ -118,18 +118,18 @@
   "sources": {
     "specReview": {
       "path": "tools/spec-reviewer/reports",
-      "asOf": "2026-09-18T00:07:40.932Z",
+      "asOf": "2026-10-28T14:16:37.702Z",
       "snapshot": false
     },
     "playwright": {
       "path": "tests/playwright/results/results.json",
-      "asOf": "2026-10-28T12:42:38.814Z",
+      "asOf": "2026-10-28T14:13:18.564Z",
       "snapshot": false
     },
     "evaluation": {
-      "path": "eval-platform/reports/results.json",
+      "path": "eval-platform/demo-reports/run-2-harder-21/results.json",
       "asOf": "2026-10-28T12:36:05.552Z",
-      "snapshot": false
+      "snapshot": true
     }
   },
   "trace": {
@@ -143,153 +143,154 @@
         "text": "Given an employee with a nonzero balance for a leave type, when they submit an Apply Leave request within that balance, then the request is saved with status \"Pending Approval (N.00)\" and the visible Leave Balance is immediately reduced by N — before any approver action.",
         "tests": [
           {
-            "title": "AC-1/AC-3: submitting reserves the balance; rejecting fully restores it",
+            "title": "AC-1/AC-2: submitting reserves the balance and reaches the approver",
             "covers": [
               "AC-1",
-              "AC-3"
+              "AC-2"
             ],
-            "status": "failed",
-            "durationMs": 26111,
-            "error": "Error: expect(locator).toContainText(expected) failed · Expected substring: \"Pending Approval (5.00)\" · Received string: \"2026-09-11 to 2026-13-11QA Approval_1793191486311463CAN - Vacation2.003.00Pending Approval (3.00) Cancel \""
+            "status": "passed",
+            "durationMs": 17603
           }
         ],
         "reviewGaps": [],
-        "status": "failing"
+        "status": "covered"
       },
       {
         "id": "AC-2",
         "text": "Given a submitted, still-pending leave request, then a user with approval rights sees a corresponding count in the Dashboard \"My Actions\" → \"Leave Request to Approve\" widget.",
-        "tests": [],
-        "reviewGaps": [
+        "tests": [
           {
-            "category": "missing_acceptance_criterion",
-            "reference": "AC-2",
-            "description": "No test checks the Dashboard 'My Actions' widget showing '(1) Leave Request to Approve' after a submission. This is entirely untested — no test logs into Admin's dashboard to verify the pending count before acting on the request.",
-            "severity": "high"
+            "title": "AC-1/AC-2: submitting reserves the balance and reaches the approver",
+            "covers": [
+              "AC-1",
+              "AC-2"
+            ],
+            "status": "passed",
+            "durationMs": 17603
           }
         ],
-        "status": "uncovered"
+        "reviewGaps": [
+          {
+            "category": "weak_assertion",
+            "reference": "AC-2",
+            "description": "AC-2 requires that a user with approval rights sees a corresponding COUNT in the Dashboard 'My Actions' widget. The test only asserts the widget is visible and not equal to '(0)...', never checking that the number reflects (or increments by) this employee's pending request specifically. This is reasonable given the shared-demo caveat the test comment calls out, but it does mean the assertion is looser than the spec's literal claim about a 'corresponding count' — it only proves non-zero, not correspondence.",
+            "severity": "low"
+          }
+        ],
+        "status": "covered"
       },
       {
         "id": "AC-3",
         "text": "Given a pending leave request in Leave List, when the approver clicks Reject, then the action applies immediately without a confirmation prompt, the status becomes \"Rejected (N.00)\", and the employee's leave balance for that type is restored by exactly N days.",
         "tests": [
           {
-            "title": "AC-1/AC-3: submitting reserves the balance; rejecting fully restores it",
+            "title": "AC-7/AC-3/AC-6: inline Reject applies without a prompt, restores the balance, leaves no action",
             "covers": [
-              "AC-1",
-              "AC-3"
+              "AC-3",
+              "AC-6",
+              "AC-7"
             ],
-            "status": "failed",
-            "durationMs": 26111,
-            "error": "Error: expect(locator).toContainText(expected) failed · Expected substring: \"Pending Approval (5.00)\" · Received string: \"2026-09-11 to 2026-13-11QA Approval_1793191486311463CAN - Vacation2.003.00Pending Approval (3.00) Cancel \""
+            "status": "passed",
+            "durationMs": 10222
           }
         ],
-        "reviewGaps": [
-          {
-            "category": "weak_assertion",
-            "reference": "AC-3",
-            "description": "The test does not assert the absence of a confirmation dialog when clicking Reject, which is an explicit part of AC-3 ('applies immediately without a confirmation prompt'). It only checks the resulting toast and balance restoration.",
-            "severity": "medium"
-          }
-        ],
-        "status": "failing"
+        "reviewGaps": [],
+        "status": "covered"
       },
       {
         "id": "AC-4",
         "text": "Given a pending leave request in Leave List, when the approver clicks Approve, then the action applies immediately without a confirmation prompt, the status becomes \"Scheduled (N.00)\", and the employee's leave balance remains reduced by N days (not restored).",
         "tests": [
           {
-            "title": "AC-4: approving a pending request keeps the balance deducted",
+            "title": "AC-4/AC-5: inline Approve applies without a prompt, keeps the balance deducted, keeps Cancel",
             "covers": [
-              "AC-4"
+              "AC-4",
+              "AC-5"
             ],
-            "status": "skipped",
-            "durationMs": 0
+            "status": "passed",
+            "durationMs": 14899
           }
         ],
-        "reviewGaps": [
-          {
-            "category": "weak_assertion",
-            "reference": "AC-4",
-            "description": "Similarly, AC-4 requires confirming no confirmation prompt appears on Approve; the test does not assert this explicitly.",
-            "severity": "medium"
-          }
-        ],
-        "status": "unverified"
+        "reviewGaps": [],
+        "status": "covered"
       },
       {
         "id": "AC-5",
         "text": "Given a request with status \"Scheduled\" (approved), then the employee retains a Cancel action on that request from My Leave.",
-        "tests": [],
-        "reviewGaps": [
+        "tests": [
           {
-            "category": "missing_acceptance_criterion",
-            "reference": "AC-5",
-            "description": "No test verifies that the approved ('Scheduled') row retains a Cancel action for the employee. The test only checks the status text 'Scheduled (2.00)' and balance, not the presence of the Cancel button.",
-            "severity": "medium"
+            "title": "AC-4/AC-5: inline Approve applies without a prompt, keeps the balance deducted, keeps Cancel",
+            "covers": [
+              "AC-4",
+              "AC-5"
+            ],
+            "status": "passed",
+            "durationMs": 14899
           }
         ],
-        "status": "uncovered"
+        "reviewGaps": [],
+        "status": "covered"
       },
       {
         "id": "AC-6",
         "text": "Given a request with status \"Rejected\", then the employee has no further action available on that row (no Cancel, no resubmit-in-place).",
-        "tests": [],
-        "reviewGaps": [
+        "tests": [
           {
-            "category": "missing_acceptance_criterion",
-            "reference": "AC-6",
-            "description": "No test verifies that the rejected row has no further employee action (no Cancel button). Only the status text and balance are checked.",
-            "severity": "medium"
+            "title": "AC-7/AC-3/AC-6: inline Reject applies without a prompt, restores the balance, leaves no action",
+            "covers": [
+              "AC-3",
+              "AC-6",
+              "AC-7"
+            ],
+            "status": "passed",
+            "durationMs": 10222
           }
         ],
-        "status": "uncovered"
+        "reviewGaps": [],
+        "status": "covered"
       },
       {
         "id": "AC-7",
         "text": "Given the Leave List \"Pending Approval\" filter, then Approve/Reject actions are available inline on each row without opening a detail view.",
-        "tests": [],
-        "reviewGaps": [
+        "tests": [
           {
-            "category": "missing_acceptance_criterion",
-            "reference": "AC-7",
-            "description": "No test explicitly verifies that Approve/Reject actions are available inline in the Leave List row without navigating to a detail page — the tests call leaveList.approve()/reject() helper methods but don't assert inline-availability or absence of navigation to a detail view.",
-            "severity": "low"
+            "title": "AC-7/AC-3/AC-6: inline Reject applies without a prompt, restores the balance, leaves no action",
+            "covers": [
+              "AC-3",
+              "AC-6",
+              "AC-7"
+            ],
+            "status": "passed",
+            "durationMs": 10222
           }
         ],
-        "status": "uncovered"
+        "reviewGaps": [],
+        "status": "covered"
       }
     ],
     "otherGaps": [
       {
         "category": "missing_edge_case",
-        "reference": "No confirmation dialog on Approve/Reject",
-        "description": "The edge case explicitly flags the lack of a confirmation dialog as a UX risk worth asserting on, but no test verifies the absence of any dialog/prompt when clicking Approve or Reject.",
-        "severity": "medium"
-      },
-      {
-        "category": "missing_edge_case",
-        "reference": "Notification is in-app only (observed)",
-        "description": "Not tested at all — no test verifies that no toast/email is generated for the approver at submission time, nor that the Dashboard widget is the only notification surface.",
-        "severity": "medium"
-      },
-      {
-        "category": "missing_edge_case",
-        "reference": "Leave Type dropdown scoping",
-        "description": "Not exercised in this test file, but this is explicitly disclosed as covered by a separate spec (leave-balance-validation), so it is a low-severity, disclosed gap here.",
+        "reference": "Edge case: No confirmation dialog on Approve/Reject",
+        "description": "Partially covered — tests verify no native browser dialog and no OrangeHRM confirmation modal appears before Reject/Approve apply. This is reasonably solid coverage of the edge case, not a true gap, but noting it as acceptable/low since the spec frames this primarily as a UX risk note rather than a strict additional assertion requirement.",
         "severity": "low"
       },
       {
         "category": "missing_edge_case",
-        "reference": "Cross-role dependency not fully isolated",
-        "description": "Explicitly disclosed in the spec as a known follow-up (manager-scoped approval not verified). Correctly a disclosed, low-severity gap not covered by these tests.",
+        "reference": "Edge case: Leave Type dropdown scoping",
+        "description": "Not exercised in this spec's test file at all (no test checks that an employee with zero entitlement records sees no leave types). However, the spec explicitly defers this to the `leave-balance-validation` spec, so this is a disclosed cross-reference rather than a silent gap in this feature's own test suite.",
+        "severity": "low"
+      },
+      {
+        "category": "missing_edge_case",
+        "reference": "Edge case: Cross-role dependency not fully isolated (manager-scoped approval)",
+        "description": "Explicitly disclosed in the spec as 'not confirmed in this pass' / a follow-up. No test attempts manager-scoped approval; this is expected and already disclosed, so only worth flagging at low severity for a human to prioritize.",
         "severity": "low"
       }
     ],
     "review": {
-      "score": 6,
-      "summary": "The two tests solidly cover the core balance-accounting round trips for AC-1, AC-3, and AC-4 with correct numeric assertions matching observed behavior. However, AC-2 (dashboard notification widget) is completely untested, AC-5/AC-6 (post-action row action availability) and AC-7 (inline action availability) are not explicitly verified, and the explicitly-called-out edge case of 'no confirmation dialog' is never asserted despite being flagged as a genuine risk in the spec."
+      "score": 9,
+      "summary": "All seven ACs are cited by tests and the assertions closely match the concrete numbers and status strings from Observed Behavior (Pending Approval (5.00), 0.00 balance, Rejected (5.00) with balance restored to 5.00, Scheduled (2.00) with balance at 3.00, inline Approve/Reject with no confirmation dialogs, Cancel presence/absence). No contradictions were found. The only shortfalls are a slightly loose AC-2 assertion (non-zero count rather than a proven corresponding count) and edge cases that are either already disclosed in the spec as follow-ups/out-of-scope or only partially exercised, all low severity.</summary>\n</invoke>\n"
     },
     "evalEntries": [
       {

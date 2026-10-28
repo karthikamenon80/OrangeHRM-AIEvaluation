@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { exactLabel } from '../utils/locators';
-import { waitForAppReady } from '../utils/waits';
+import { openScreen } from '../utils/waits';
 
 export interface NewEmployeeDetails {
   firstName: string;
@@ -17,8 +17,7 @@ export class AddEmployeePage {
   constructor(private readonly page: Page) {}
 
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/pim/addEmployee');
-    await waitForAppReady(this.page);
+    await openScreen(this.page, '/web/index.php/pim/addEmployee');
     await this.page.locator('input[name="firstName"]').waitFor();
   }
 
