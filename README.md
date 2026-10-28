@@ -35,43 +35,43 @@ it reported took the project to a full pass:
 Full dashboard: [now](https://htmlpreview.github.io/?https://github.com/karthikamenon80/OrangeHRM-AIEvaluation/blob/master/quality-gate/demo/dashboard.html)
 · [first run](https://htmlpreview.github.io/?https://github.com/karthikamenon80/OrangeHRM-AIEvaluation/blob/master/quality-gate/demo/before-fixes/dashboard.html)
 
-## The interview story (under 3 minutes)
+## Walkthrough: one feature, requirement to release
 
-One feature, **Leave Approval**, followed from requirement to release
-decision. Each step names the file to open.
+**Leave Approval**, followed through every stage of the pipeline. Each step
+links to the file that shows it.
 
-**0:00 · Business requirement.** *"An employee requests leave, a manager
+**1 · Business requirement.** *"An employee requests leave, a manager
 approves or rejects it, and the balance must always be right."* It's a
 cross-role workflow with money-like side effects: the kind of feature where
 quiet bugs cost trust.
 → [`proposal.md`](openspec/changes/leave-approval-workflow/proposal.md)
 
-**0:30 · Spec.** I explored the live product and wrote down what it
+**2 · Spec.** I explored the live product and wrote down what it
 *actually* does as 7 numbered acceptance criteria, plus edge cases and open
 questions. "The balance is reserved on submit, before approval" (AC-1) is
 something you only learn by trying it.
 → [`spec.md`](openspec/changes/leave-approval-workflow/spec.md)
 
-**1:00 · AI-assisted test generation.** Playwright tests were generated from
+**3 · AI-assisted test generation.** Playwright tests were generated from
 the acceptance criteria with AI assistance, then hardened against the real
 app. Every test names the criteria it covers (`AC-7/AC-3/AC-6: …`), so
 coverage is computed, not claimed.
 → [`leave-approval-workflow.spec.ts`](tests/playwright/tests/leave-approval-workflow.spec.ts)
 
-**1:30 · AI spec review.** Claude reads the spec and the tests together and
+**4 · AI spec review.** Claude reads the spec and the tests together and
 reports missing criteria, missing edge cases, contradictions and weak
 assertions, with a 0–10 score. It caught a gap I planted on purpose. On the
 real suite it found that 4 of 7 Leave Approval criteria had no test at all.
 → [`tools/spec-reviewer/DEMO.md`](tools/spec-reviewer/DEMO.md)
 
-**2:00 · Evaluation.** For the AI side of an HR product, a platform scores
+**5 · Evaluation.** For the AI side of an HR product, a platform scores
 an HR assistant's answers on accuracy, completeness, relevance, groundedness,
 safety and consistency. Rules alone catch 18 of 21 planted flaws. A Claude
 judge catches the 3 that rules can't see: a flipped yes/no, an invented
 approval step, and a polite social-engineering request. Together: 21/21.
 → [`eval-platform/DEMO.md`](eval-platform/DEMO.md)
 
-**2:30 · Dashboard and decision.** The quality gate combines all three
+**6 · Dashboard and decision.** The quality gate combines all three
 signals against fixed thresholds. Its first run said **FAIL**: low review
 scores and failing tests. I wrote the missing tests, fixed each failure at
 its root cause, and it now says **PASS**, with every criterion traced to its
