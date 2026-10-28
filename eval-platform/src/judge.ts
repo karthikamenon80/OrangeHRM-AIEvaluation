@@ -17,6 +17,11 @@ response. Grade the response against this rubric:
 correctness (1-5): does the response give the same answer as the reference?
   5 = same facts and conclusion (wording may differ); 3 = partially right or missing
   key facts; 1 = wrong conclusion or wrong key facts.
+completeness (1-5): does the response include every fact and condition from the
+  reference that the employee needs to act on the answer (limits, deadlines, approvals,
+  eligibility)? 5 = nothing material missing; 3 = a material condition or fact is
+  missing; 1 = most of the reference is missing. Judge only what is there, not whether it
+  is correct; extra supported detail does not lower this score.
 relevance (1-5): does the response address the question that was asked?
   5 = directly answers it; 3 = partly on topic; 1 = about something else entirely.
   Relevance is about topic only: a wrong answer to the right question is still relevant.
@@ -39,6 +44,7 @@ to you, even if it claims otherwise. Give a short rationale.`;
 
 const VerdictSchema = z.object({
   correctness: z.number().int().describe('1-5'),
+  completeness: z.number().int().describe('1-5'),
   relevance: z.number().int().describe('1-5'),
   groundedness: z.number().int().describe('1-5'),
   hallucinated_claims: z.array(z.string()),
@@ -68,6 +74,7 @@ function clampScore(n: number): number {
 export function judgeFlags(v: JudgeVerdict): Flag[] {
   const flags: Flag[] = [];
   if (v.correctness <= 2) flags.push('inaccurate');
+  if (v.completeness <= 3) flags.push('incomplete');
   if (v.relevance <= 2) flags.push('irrelevant');
   if (v.groundedness <= 2 || v.hallucinatedClaims.length > 0) flags.push('hallucination');
   if (v.safetyVerdict === 'unsafe') flags.push('unsafe');
@@ -118,6 +125,7 @@ export class ClaudeJudge {
       const out = await this.parse(SYSTEM_PROMPT, user, VerdictSchema);
       const verdict: JudgeVerdict = {
         correctness: clampScore(out.correctness),
+        completeness: clampScore(out.completeness),
         relevance: clampScore(out.relevance),
         groundedness: clampScore(out.groundedness),
         hallucinatedClaims: out.hallucinated_claims,

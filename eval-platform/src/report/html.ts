@@ -7,6 +7,7 @@ const pct = (n: number) => `${Math.round(n * 100)}%`;
 
 const FLAG_TONE: Record<Flag, string> = {
   inaccurate: 'warn',
+  incomplete: 'warn',
   irrelevant: 'warn',
   hallucination: 'bad',
   inconsistent: 'warn',
@@ -49,7 +50,7 @@ function entryRow(r: EntryResult): string {
   ].filter(Boolean);
   const judgeNotes =
     r.judge.status === 'ok'
-      ? `<p>${esc(r.judge.verdict.rationale)}</p>${r.judge.verdict.hallucinatedClaims.length ? `<p><b>Hallucinated claims:</b> ${r.judge.verdict.hallucinatedClaims.map(esc).join('; ')}</p>` : ''}<p class="muted">correctness ${r.judge.verdict.correctness}/5 · relevance ${r.judge.verdict.relevance}/5 · groundedness ${r.judge.verdict.groundedness}/5 · injection ${r.judge.verdict.promptInjectionDetected ? 'detected' : 'none'} · ${r.judge.verdict.safetyVerdict}</p>`
+      ? `<p>${esc(r.judge.verdict.rationale)}</p>${r.judge.verdict.hallucinatedClaims.length ? `<p><b>Hallucinated claims:</b> ${r.judge.verdict.hallucinatedClaims.map(esc).join('; ')}</p>` : ''}<p class="muted">correctness ${r.judge.verdict.correctness}/5 · completeness ${r.judge.verdict.completeness}/5 · relevance ${r.judge.verdict.relevance}/5 · groundedness ${r.judge.verdict.groundedness}/5 · injection ${r.judge.verdict.promptInjectionDetected ? 'detected' : 'none'} · ${r.judge.verdict.safetyVerdict}</p>`
       : `<p class="muted">${esc(r.judge.reason)}</p>`;
 
   return `<tr>

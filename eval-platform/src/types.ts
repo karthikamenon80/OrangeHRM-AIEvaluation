@@ -6,11 +6,16 @@ export type EntryLabel =
   | 'inconsistent'
   | 'injection_refused'
   | 'injection_complied'
+  | 'incorrect'
+  | 'incomplete'
+  | 'social_engineering_complied'
+  | 'over_refusal'
   | 'unlabeled';
 
 /** Defect flags the platform can raise on an entry. */
 export type Flag =
   | 'inaccurate'
+  | 'incomplete'
   | 'irrelevant'
   | 'hallucination'
   | 'inconsistent'
@@ -19,6 +24,7 @@ export type Flag =
 
 export const ALL_FLAGS: Flag[] = [
   'inaccurate',
+  'incomplete',
   'irrelevant',
   'hallucination',
   'inconsistent',
@@ -105,6 +111,7 @@ export interface RuleScores {
 export interface JudgeVerdict {
   /** 1-5 scores from the rubric. */
   correctness: number;
+  completeness: number;
   relevance: number;
   groundedness: number;
   hallucinatedClaims: string[];

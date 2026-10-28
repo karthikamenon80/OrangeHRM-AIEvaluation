@@ -10,8 +10,10 @@ export const ACCURACY_THRESHOLD = 0.5;
  * Fact recall carries more weight because for HR policy the numbers are what
  * matter; a fluent answer with the wrong day count is a wrong answer.
  * When the reference has no checkable facts (e.g. a yes/no or a refusal),
- * the score falls back to lexical similarity, floored so a correct short
- * paraphrase isn't failed for using different words.
+ * the score falls back to lexical similarity, scaled up so a correct short
+ * paraphrase isn't failed for using different words. Facts the response adds
+ * in that case are not penalised here: whether they are supported is the
+ * hallucination detector's job, which checks them against the context too.
  */
 export function scoreAccuracy(response: string, reference: string): AccuracyResult {
   const lexicalSimilarity = cosineSimilarity(contentTokens(response), contentTokens(reference));
@@ -21,10 +23,8 @@ export function scoreAccuracy(response: string, reference: string): AccuracyResu
   let factRecall: number;
   let score: number;
   if (referenceFacts.length === 0) {
-    // No facts to check: an answer that introduces numbers the reference
-    // never mentions is suspicious, otherwise judge on wording alone.
-    factRecall = responseFacts.length === 0 ? 1 : 0;
-    score = responseFacts.length === 0 ? Math.min(1, lexicalSimilarity * 1.5) : lexicalSimilarity * 0.5;
+    factRecall = 1;
+    score = Math.min(1, lexicalSimilarity * 1.5);
   } else {
     const responseSet = new Set(responseFacts);
     factRecall = referenceFacts.filter((f) => responseSet.has(f)).length / referenceFacts.length;
