@@ -1,0 +1,30 @@
+{
+  "gaps": [
+    {
+      "category": "missing_edge_case",
+      "reference": "Edge case: No confirmation dialog on Approve/Reject",
+      "description": "The spec flags this as a genuine UX risk surface worth explicit attention, not just a note. Tests do check for absence of native dialogs and absence of a confirmation dialog element, which reasonably covers this edge case. No gap here beyond what's tested — covered adequately.",
+      "severity": "low"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "Edge case: Leave Type dropdown scoping",
+      "description": "Not exercised in this spec's tests at all (no test checks that an employee with zero entitlement records sees no leave types). The spec explicitly defers exact messaging to the leave-balance-validation spec, but the scoping behavior itself (dropdown only lists leave types with an entitlement record) is a leave-approval-workflow edge case that is silently absent from this suite. It is partially disclosed via cross-reference but not explicitly marked 'not exercised in this pass' for this spec file.",
+      "severity": "low"
+    },
+    {
+      "category": "missing_edge_case",
+      "reference": "Edge case: Cross-role dependency not fully isolated",
+      "description": "This edge case is explicitly disclosed as a known follow-up not confirmed in this pass (manager-scoped approval not tested, Admin used as global approver instead). This is a disclosed gap, correctly reflected in the tests using Admin as approver, so low severity only for completeness tracking.",
+      "severity": "low"
+    },
+    {
+      "category": "weak_assertion",
+      "reference": "AC-2",
+      "description": "AC-2 requires that 'a user with approval rights sees a corresponding count' in the My Actions widget. The test only asserts the widget is visible and not '(0)...', without verifying the count increments by exactly 1 relative to a pre-submission baseline. Since the demo environment is shared/global (as the test comment itself acknowledges), this is a reasonable compromise, but it means the assertion is weaker than the AC's literal 'corresponding count' language — it doesn't prove the number reflects this specific request, only that followed-through navigation reaches the correct employee's row. This is a reasonable practical tradeoff, so only minor weakness.",
+      "severity": "low"
+    }
+  ],
+  "score": 9,
+  "summary": "All seven ACs are explicitly cited in test comments and are exercised with concrete, spec-matching assertions (exact status strings like \"Pending Approval (5.00)\", \"Rejected (5.00)\", \"Scheduled (2.00)\", and exact balance values 0.00/5.00/3.00), matching the Observed Behavior section precisely with no contradictions found. The reject-vs-approve balance divergence edge case is well covered by running both flows independently in sequence as the spec demands, and the no-confirmation-dialog edge case is actively checked via native dialog recording. Minor gaps: the Leave Type dropdown scoping and cross-role/manager-approval edge cases remain unexercised (one disclosed as a follow-up, one only implicitly disclosed via cross-reference), and AC-2's assertion on the My Actions count is slightly shallow given the shared-environment caveat."
+}

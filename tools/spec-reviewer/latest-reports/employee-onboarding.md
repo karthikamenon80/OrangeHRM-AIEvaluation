@@ -1,0 +1,12 @@
+### AI Spec Review — `employee-onboarding`
+
+**Score: 9/10**
+
+Coverage is strong: every AC (AC-1 through AC-8) is explicitly cited and tested with assertions that match the observed behavior section (exact error text, strength labels, redirect behavior, login-account counts). The two disclosed-but-unexercised edge cases (toggle-off retention, photo upload limits) remain untested, consistent with the spec's own disclosure, and are correctly low severity. No contradictions were found between test assertions and observed behavior — exact strings like "Username already exists", "Should have at least 7 characters", "Very Weak", "Passwords do not match", and "Employee Id already exists" all match. Minor weak-assertion nitpicks exist around the "Strong" strength badge not being explicitly checked in the success path.
+
+| Severity | Category | Reference | Description |
+|---|---|---|---|
+| 🟡 low | Missing edge case | `Edge case: Toggling Create Login Details off after entering data` | Spec explicitly discloses this as 'not exercised in this pass — flagged as a follow-up check'. No test exercises toggling login details off after entering username/password data to see if it's discarded or retained. This is a disclosed gap, so low severity per instructions. |
+| 🟡 low | Missing edge case | `Edge case: Photo upload boundary (1MB / dimension limits)` | Spec explicitly discloses this as 'not exercised in this pass — flagged as a follow-up'. No test exercises photo upload size/type validation. Disclosed gap, so low severity. |
+| 🟡 low | Weak assertion | `AC-6` | AC-6 requires the password be 'strong' and the test uses STRONG_PASSWORD from a utility, but no assertion checks that the strength chip actually displays 'Strong' during entry, unlike the weak-password test which does check the chip. This leaves the 'Strong' badge claim in AC-6 and observed behavior unverified by assertion. |
+| 🟡 low | Weak assertion | `AC-2` | AC-2 is about Middle Name and Employee Id being optional. The test clears Employee Id but does not verify that leaving Middle Name empty is independently acceptable in a scenario where Employee Id is populated (i.e., it only tests both empty together), slightly conflating the two independent optional-field claims into one test. Minor, low-impact since the round trip is still directionally valid per AC-2 wording allowing either/both to be empty. |
