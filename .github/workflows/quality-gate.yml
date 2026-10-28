@@ -5,17 +5,16 @@ name: Quality Gate
 # its raw output even when it fails, so the gate always judges real results
 # instead of the build stopping at the first red step.
 #
-# Cost control: the AI evaluation (~22 Claude Opus calls, roughly $1-2 a
-# run) only runs when this workflow is started by hand from the Actions tab
-# with "Run the AI evaluation" ticked. On every other run the gate uses the
-# newest committed eval snapshot (eval-platform/demo-reports/), and the
-# dashboard and job summary say so.
+# Manual only: start it from Actions -> Quality Gate -> Run workflow. It does
+# not run on push or PR, so it never spends Claude credits unasked.
+#
+# Cost control: the spec-review job makes 3 Claude Sonnet calls (~$0.10).
+# The AI evaluation (~22 Claude Opus calls, roughly $1-2) only runs with
+# "Run the AI evaluation" ticked. Unticked, the gate uses the newest
+# committed eval snapshot (eval-platform/demo-reports/), and the dashboard
+# and job summary say so.
 
 on:
-  push:
-    branches: [master, main]
-  pull_request:
-    branches: [master, main]
   workflow_dispatch:
     inputs:
       run_ai_eval:
@@ -89,7 +88,7 @@ jobs:
 
   evaluation:
     # Opt-in only: see "Cost control" at the top of this file.
-    if: github.event_name == 'workflow_dispatch' && inputs.run_ai_eval
+    if: inputs.run_ai_eval
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
