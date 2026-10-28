@@ -6,7 +6,7 @@
 
 A quality pipeline that takes a real HR product, **OrangeHRM**, from a
 business requirement to **one evidence-backed release decision**, using AI
-at every step where it adds value and checking the AI's work along the way.
+where it adds judgement and checking the AI's work along the way.
 
 **Why it exists.** Passing tests prove that code runs. They don't prove the
 *right* behaviour is tested, and they say nothing about whether an AI feature
@@ -52,10 +52,9 @@ questions. "The balance is reserved on submit, before approval" (AC-1) is
 something you only learn by trying it.
 → [`spec.md`](openspec/changes/leave-approval-workflow/spec.md)
 
-**1:00 · AI-assisted test generation.** Playwright tests were generated from
-the acceptance criteria with AI assistance, then hardened against the real
-app. Every test names the criteria it covers (`AC-7/AC-3/AC-6: …`), so
-coverage is computed, not claimed.
+**1:00 · Tests.** Playwright tests are written from the acceptance criteria
+and run against the real app. Every test names the criteria it covers
+(`AC-7/AC-3/AC-6: …`), so coverage is computed, not claimed.
 → [`leave-approval-workflow.spec.ts`](tests/playwright/tests/leave-approval-workflow.spec.ts)
 
 **1:30 · AI spec review.** Claude reads the spec and the tests together and
