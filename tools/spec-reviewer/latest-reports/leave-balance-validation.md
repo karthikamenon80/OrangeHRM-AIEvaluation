@@ -1,0 +1,11 @@
+### AI Spec Review — `leave-balance-validation`
+
+**Score: 9/10**
+
+Coverage is very strong: all 9 ACs are explicitly cited in test comments and are exercised with specific, observed-matching assertions (exact error strings, numeric boundaries like 5.00/8.00, inclusive boundary behavior, additive top-up semantics, and the AC-6 submission-not-just-warning check). No contradictions with the Observed Behavior section were found — strings, numbers, and status labels all match. The only gaps are two edge cases the spec itself already discloses as not-yet-verified follow-ups (fractional entitlements, balance panel auto-repopulation after date correction), which are appropriately low severity rather than true misses.
+
+| Severity | Category | Reference | Description |
+|---|---|---|---|
+| 🟡 low | Missing edge case | `Edge case: Fractional/decimal entitlements` | Spec explicitly flags that fractional entitlements (e.g. 0.5 days) were not independently re-verified and marks this as a follow-up. No test exercises a fractional entitlement value. This is disclosed in the spec, so low severity. |
+| 🟡 low | Missing edge case | `Edge case: Invalid date range resets balance context / whether balance re-displays automatically on correction` | Spec explicitly flags as a follow-up whether the balance panel re-populates automatically after correcting an invalid To Date (vs. requiring leave-type/date re-selection). No test exercises correcting the date after the AC-8 error to check balance panel behavior. Disclosed gap, so low severity. |
+| 🟡 low | Weak assertion | `AC-6` | The spec's observed behavior says the Leave Balance panel shows 'Balance not sufficient' in red specifically as a live client-side computation before any Apply click. The test only asserts the text is present via toContainText, which is reasonable, but does not also verify the panel's prior/ normal numeric state transitions (e.g., that it initially showed a numeric balance before changing to 'Balance not sufficient'). This is a minor completeness point, not a strict contradiction, so logged as low-impact weak assertion risk. |

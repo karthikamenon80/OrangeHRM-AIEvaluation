@@ -49,6 +49,16 @@ none changed. The combined review is uploaded as the `spec-review-reports`
 artifact. The PR-comment code (`githubComment.ts`) only posts when the run
 was triggered by a pull request, so these runs don't comment.
 
+## Committed reports
+
+- `baseline-reports/`: the first review of the full suite (scores 5, 6
+  and 5 out of 10). The quality gate also uses these as its fallback when
+  no API key is available.
+- `latest-reports/`: the review from the `master` CI run on 2026-10-28,
+  after the missing tests were written (9/10 for every feature, no
+  high-severity gaps).
+- `gap-demo-reports/`: the planted-gap demo described below.
+
 ## Demo: proving it catches a real gap
 
 See `DEMO.md` in this folder for a before/after run where the AC-8 edge-case

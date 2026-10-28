@@ -35,6 +35,19 @@ it reported took the project to a full pass:
 Full dashboard: [now](https://htmlpreview.github.io/?https://github.com/karthikamenon80/OrangeHRM-AIEvaluation/blob/master/quality-gate/demo/dashboard.html)
 · [first run](https://htmlpreview.github.io/?https://github.com/karthikamenon80/OrangeHRM-AIEvaluation/blob/master/quality-gate/demo/before-fixes/dashboard.html)
 
+## Reports and evidence
+
+Every number above comes from a report committed to this repo. Each one
+opens in the browser, with no setup:
+
+| Report | What it shows | Open |
+|---|---|---|
+| **Quality gate dashboard** | The release decision: all six checks, plus each Leave Approval criterion traced to its test, CI result and reviewer notes | [now (PASS)](https://htmlpreview.github.io/?https://github.com/karthikamenon80/OrangeHRM-AIEvaluation/blob/master/quality-gate/demo/dashboard.html) · [first run (FAIL)](https://htmlpreview.github.io/?https://github.com/karthikamenon80/OrangeHRM-AIEvaluation/blob/master/quality-gate/demo/before-fixes/dashboard.html) |
+| **AI spec review** | Claude's gap list per feature, with severity and reasoning. Compare the first review with the latest to see the gaps it found and how they were closed | [latest (9/10 each)](tools/spec-reviewer/latest-reports/combined.md) · [first review (5–6/10)](tools/spec-reviewer/baseline-reports/combined.md) |
+| **Spec reviewer catching a planted gap** | A test check removed on purpose, the reviewer flagging it, and the fix | [walkthrough](tools/spec-reviewer/DEMO.md) |
+| **AI evaluation report** | All 21 assistant answers with rule scores, the Claude judge's verdict and rationale, and each flag against its ground-truth label | [report](https://htmlpreview.github.io/?https://github.com/karthikamenon80/OrangeHRM-AIEvaluation/blob/master/eval-platform/demo-reports/run-2-harder-21/report.html) · [walkthrough](eval-platform/DEMO.md) |
+| **CI history** | Every pipeline run on `master` with its logs. Artifacts (Playwright HTML report, traces on failure) download when signed in to GitHub | [GitHub Actions](https://github.com/karthikamenon80/OrangeHRM-AIEvaluation/actions) |
+
 ## Walkthrough: one feature, requirement to release
 
 **Leave Approval**, followed through every stage of the pipeline. Each step
